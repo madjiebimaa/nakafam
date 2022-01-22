@@ -10,17 +10,17 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type mongoRepository struct {
+type mongoNakamaRepository struct {
 	db *mongo.Collection
 }
 
-func NewMongoRepository(db *mongo.Collection) domain.NakamaRepository {
-	return &mongoRepository{
+func NewMongoNakamaRepository(db *mongo.Collection) domain.NakamaRepository {
+	return &mongoNakamaRepository{
 		db,
 	}
 }
 
-func (m *mongoRepository) Create(ctx context.Context, nakama *domain.Nakama) error {
+func (m *mongoNakamaRepository) Create(ctx context.Context, nakama *domain.Nakama) error {
 	if _, err := m.db.InsertOne(ctx, nakama); err != nil {
 		log.Fatal(err)
 		return domain.ErrInternalServerError
@@ -29,13 +29,8 @@ func (m *mongoRepository) Create(ctx context.Context, nakama *domain.Nakama) err
 	return nil
 }
 
-func (m *mongoRepository) Update(ctx context.Context, nakama *domain.Nakama) error {
-	if _, err := m.db.UpdateByID(ctx, nakama.ID, domain.Nakama{
-		SocialMedia:  nakama.SocialMedia,
-		ProfileImage: nakama.ProfileImage,
-		Description:  nakama.Description,
-		UpdatedAt:    nakama.UpdatedAt,
-	}); err != nil {
+func (m *mongoNakamaRepository) Update(ctx context.Context, nakama *domain.Nakama) error {
+	if _, err := m.db.UpdateByID(ctx, nakama.ID, nakama); err != nil {
 		log.Fatal(err)
 		return domain.ErrInternalServerError
 	}
@@ -43,7 +38,7 @@ func (m *mongoRepository) Update(ctx context.Context, nakama *domain.Nakama) err
 	return nil
 }
 
-func (m *mongoRepository) Delete(ctx context.Context, id primitive.ObjectID) error {
+func (m *mongoNakamaRepository) Delete(ctx context.Context, id primitive.ObjectID) error {
 	if _, err := m.db.DeleteOne(ctx, domain.Nakama{ID: id}); err != nil {
 		log.Fatal(err)
 		return domain.ErrInternalServerError
@@ -52,7 +47,7 @@ func (m *mongoRepository) Delete(ctx context.Context, id primitive.ObjectID) err
 	return nil
 }
 
-func (m *mongoRepository) GetByID(ctx context.Context, id primitive.ObjectID) (domain.Nakama, error) {
+func (m *mongoNakamaRepository) GetByID(ctx context.Context, id primitive.ObjectID) (domain.Nakama, error) {
 	var nakama domain.Nakama
 	if err := m.db.FindOne(ctx, domain.Nakama{ID: id}).Decode(&nakama); err != nil {
 		log.Fatal(err)
@@ -62,7 +57,7 @@ func (m *mongoRepository) GetByID(ctx context.Context, id primitive.ObjectID) (d
 	return nakama, nil
 }
 
-func (m *mongoRepository) GetByName(ctx context.Context, name string) (domain.Nakama, error) {
+func (m *mongoNakamaRepository) GetByName(ctx context.Context, name string) (domain.Nakama, error) {
 	var nakama domain.Nakama
 	if err := m.db.FindOne(ctx, domain.Nakama{Name: name}).Decode(&nakama); err != nil {
 		log.Fatal(err)
@@ -72,7 +67,7 @@ func (m *mongoRepository) GetByName(ctx context.Context, name string) (domain.Na
 	return nakama, nil
 }
 
-func (m *mongoRepository) GetAll(ctx context.Context) ([]domain.Nakama, error) {
+func (m *mongoNakamaRepository) GetAll(ctx context.Context) ([]domain.Nakama, error) {
 	cur, err := m.db.Find(ctx, bson.M{})
 	if err != nil {
 		log.Fatal(err)
