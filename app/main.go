@@ -18,17 +18,21 @@ func main() {
 
 	ctx := context.Background()
 	mongoConfig := mongo.NewConfigDB(os.Getenv("MONGO_HOST"), os.Getenv("MONGO_PORT"))
-	mn := mongoConfig.Init(ctx)
+	cl := mongoConfig.Init(ctx)
 	defer func() {
 
-		if err := mn.Disconnect(ctx); err != nil {
+		if err := cl.Disconnect(ctx); err != nil {
 			log.Fatal(err)
 		}
 	}()
 
-	if err := mn.Ping(ctx, readpref.Primary()); err != nil {
+	if err := cl.Ping(ctx, readpref.Primary()); err != nil {
 		log.Fatal(err)
 	}
+
+	// db := cl.Database(constant.DATABASE_NAME)
+	// nakamaColl := db.Collection(constant.NAKAMA_COLLECTION)
+	// familyColl := db.Collection(constant.FAMILY_COLLECTION)
 
 	redisConfig := redis.NewConfigDB(os.Getenv("REDIS_HOST"), os.Getenv("REDIS_PORT"))
 	rdb := redisConfig.Init(ctx)
@@ -37,10 +41,6 @@ func main() {
 			log.Fatal(err)
 		}
 	}()
-
-	// nakafamDB := mn.Database(constant.DATABASE_NAME)
-	// nakamaColl := nakafamDB.Collection(constant.NAKAMA_COLLECTION)
-	// familyColl := nakafamDB.Collection(constant.FAMILY_COLLECTION)
 
 	// timeoutContextEnv, _ := strconv.Atoi(os.Getenv("TIMEOUT_CONTEXT"))
 	// timeoutContext := time.Duration(timeoutContextEnv) * time.Second

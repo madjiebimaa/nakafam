@@ -11,17 +11,17 @@ import (
 )
 
 type mongoFamilyRepository struct {
-	db *mongo.Collection
+	coll *mongo.Collection
 }
 
-func NewMongoFamilyRepository(db *mongo.Collection) domain.FamilyRepository {
+func NewMongoFamilyRepository(coll *mongo.Collection) domain.FamilyRepository {
 	return &mongoFamilyRepository{
-		db,
+		coll,
 	}
 }
 
 func (m *mongoFamilyRepository) Create(ctx context.Context, family *domain.Family) error {
-	if _, err := m.db.InsertOne(ctx, family); err != nil {
+	if _, err := m.coll.InsertOne(ctx, family); err != nil {
 		log.Fatal(err)
 		return domain.ErrInternalServerError
 	}
@@ -37,7 +37,7 @@ func (m *mongoFamilyRepository) Update(ctx context.Context, family *domain.Famil
 		{Key: "$set", Value: bson.D{{Key: "updated_at", Value: family.UpdatedAt}}},
 	}
 
-	if _, err := m.db.UpdateByID(ctx, filter, updater); err != nil {
+	if _, err := m.coll.UpdateByID(ctx, filter, updater); err != nil {
 		log.Fatal(err)
 		return domain.ErrInternalServerError
 	}
@@ -47,7 +47,7 @@ func (m *mongoFamilyRepository) Update(ctx context.Context, family *domain.Famil
 
 func (m *mongoFamilyRepository) Delete(ctx context.Context, id primitive.ObjectID) error {
 	filter := bson.D{{Key: "_id", Value: id}}
-	if _, err := m.db.DeleteOne(ctx, filter); err != nil {
+	if _, err := m.coll.DeleteOne(ctx, filter); err != nil {
 		log.Fatal(err)
 		return domain.ErrInternalServerError
 	}
@@ -58,7 +58,7 @@ func (m *mongoFamilyRepository) Delete(ctx context.Context, id primitive.ObjectI
 func (m *mongoFamilyRepository) GetByID(ctx context.Context, id primitive.ObjectID) (domain.Family, error) {
 	var family domain.Family
 	filter := bson.D{{Key: "_id", Value: id}}
-	if err := m.db.FindOne(ctx, filter).Decode(&family); err != nil {
+	if err := m.coll.FindOne(ctx, filter).Decode(&family); err != nil {
 		log.Fatal(err)
 		return family, domain.ErrInternalServerError
 	}
@@ -73,7 +73,7 @@ func (m *mongoFamilyRepository) GetByID(ctx context.Context, id primitive.Object
 func (m *mongoFamilyRepository) GetByName(ctx context.Context, name string) (domain.Family, error) {
 	var family domain.Family
 	filter := bson.D{{Key: "name", Value: name}}
-	if err := m.db.FindOne(ctx, filter).Decode(&family); err != nil {
+	if err := m.coll.FindOne(ctx, filter).Decode(&family); err != nil {
 		log.Fatal(err)
 		return family, domain.ErrInternalServerError
 	}
@@ -87,7 +87,7 @@ func (m *mongoFamilyRepository) GetByName(ctx context.Context, name string) (dom
 
 func (m *mongoFamilyRepository) GetAll(ctx context.Context) ([]domain.Family, error) {
 	filter := bson.D{{}}
-	cur, err := m.db.Find(ctx, filter)
+	cur, err := m.coll.Find(ctx, filter)
 	if err != nil {
 		log.Fatal(err)
 		return nil, domain.ErrInternalServerError

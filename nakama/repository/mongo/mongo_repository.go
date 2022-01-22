@@ -12,17 +12,17 @@ import (
 )
 
 type mongoNakamaRepository struct {
-	db *mongo.Collection
+	coll *mongo.Collection
 }
 
-func NewMongoNakamaRepository(db *mongo.Collection) domain.NakamaRepository {
+func NewMongoNakamaRepository(coll *mongo.Collection) domain.NakamaRepository {
 	return &mongoNakamaRepository{
-		db,
+		coll,
 	}
 }
 
 func (m *mongoNakamaRepository) Create(ctx context.Context, nakama *domain.Nakama) error {
-	if _, err := m.db.InsertOne(ctx, nakama); err != nil {
+	if _, err := m.coll.InsertOne(ctx, nakama); err != nil {
 		log.Fatal(err)
 		return domain.ErrInternalServerError
 	}
@@ -40,7 +40,7 @@ func (m *mongoNakamaRepository) Update(ctx context.Context, nakama *domain.Nakam
 		{Key: "$set", Value: bson.D{{Key: "updated_at", Value: nakama.UpdatedAt}}},
 	}
 
-	if _, err := m.db.UpdateOne(ctx, filter, updater); err != nil {
+	if _, err := m.coll.UpdateOne(ctx, filter, updater); err != nil {
 		log.Fatal(err)
 		return domain.ErrInternalServerError
 	}
@@ -50,7 +50,7 @@ func (m *mongoNakamaRepository) Update(ctx context.Context, nakama *domain.Nakam
 
 func (m *mongoNakamaRepository) Delete(ctx context.Context, id primitive.ObjectID) error {
 	filter := bson.D{{Key: "_id", Value: id}}
-	if _, err := m.db.DeleteOne(ctx, filter); err != nil {
+	if _, err := m.coll.DeleteOne(ctx, filter); err != nil {
 		log.Fatal(err)
 		return domain.ErrInternalServerError
 	}
@@ -61,7 +61,7 @@ func (m *mongoNakamaRepository) Delete(ctx context.Context, id primitive.ObjectI
 func (m *mongoNakamaRepository) GetByID(ctx context.Context, id primitive.ObjectID) (domain.Nakama, error) {
 	var nakama domain.Nakama
 	filter := bson.D{{Key: "_id", Value: id}}
-	if err := m.db.FindOne(ctx, filter).Decode(&nakama); err != nil {
+	if err := m.coll.FindOne(ctx, filter).Decode(&nakama); err != nil {
 		log.Fatal(err)
 		return nakama, domain.ErrInternalServerError
 	}
@@ -76,7 +76,7 @@ func (m *mongoNakamaRepository) GetByID(ctx context.Context, id primitive.Object
 func (m *mongoNakamaRepository) GetByName(ctx context.Context, name string) (domain.Nakama, error) {
 	var nakama domain.Nakama
 	filter := bson.D{{Key: "name", Value: name}}
-	if err := m.db.FindOne(ctx, filter).Decode(&nakama); err != nil {
+	if err := m.coll.FindOne(ctx, filter).Decode(&nakama); err != nil {
 		log.Fatal(err)
 		return nakama, domain.ErrInternalServerError
 	}
@@ -91,7 +91,7 @@ func (m *mongoNakamaRepository) GetByName(ctx context.Context, name string) (dom
 func (m *mongoNakamaRepository) GetByFamilyID(ctx context.Context, familyID primitive.ObjectID) ([]domain.Nakama, error) {
 	filter := bson.D{{Key: "family_id", Value: familyID}}
 	opts := options.Find().SetSort(bson.D{{Key: "name", Value: -1}})
-	cur, err := m.db.Find(ctx, filter, opts)
+	cur, err := m.coll.Find(ctx, filter, opts)
 	if err != nil {
 		log.Fatal(err)
 		return nil, domain.ErrInternalServerError

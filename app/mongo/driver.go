@@ -24,10 +24,10 @@ func NewConfigDB(
 }
 
 func (c *configDB) Init(ctx context.Context) *mongo.Client {
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://"+c.host+":"+c.port))
+	cl, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://"+c.host+":"+c.port))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	return client
+	return cl
 }
