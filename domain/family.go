@@ -10,6 +10,7 @@ import (
 type Family struct {
 	ID          primitive.ObjectID `json:"id" bson:"_id"`
 	Name        string             `json:"name" bson:"name"`
+	Password    string             `json:"password"`
 	FamilyImage string             `json:"family_image" bson:"family_image"`
 	Nakamas     []Nakama           `json:"nakamas" bson:"nakamas"`
 	CreatedAt   time.Time          `json:"created_at" bson:"created_at"`

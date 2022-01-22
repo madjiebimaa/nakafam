@@ -4,6 +4,9 @@ import (
 	"context"
 	"time"
 
+	"github.com/madjiebimaa/nakafam/nakama/delivery/http/requests"
+	"github.com/madjiebimaa/nakafam/nakama/delivery/http/responses"
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -38,13 +41,15 @@ type NakamaRepository interface {
 	GetByID(ctx context.Context, id primitive.ObjectID) (Nakama, error)
 	GetByName(ctx context.Context, name string) (Nakama, error)
 	GetByFamilyID(ctx context.Context, familyID primitive.ObjectID) ([]Nakama, error)
+	RegisterToFamily(ctx context.Context, id primitive.ObjectID, familyID primitive.ObjectID) error
 }
 
 type NakamaUseCase interface {
-	Create(ctx context.Context, nakama *Nakama) error
-	Update(ctx context.Context, nakama *Nakama) error
+	Create(ctx context.Context, req *requests.NakamaCreate) error
+	Update(ctx context.Context, req *requests.NakamaUpdate) error
 	Delete(ctx context.Context, id primitive.ObjectID) error
-	GetByID(ctx context.Context, id primitive.ObjectID) (Nakama, error)
-	GetByName(ctx context.Context, name string) (Nakama, error)
-	GetByFamilyID(ctx context.Context, familyID primitive.ObjectID) ([]Nakama, error)
+	GetByID(ctx context.Context, id primitive.ObjectID) (responses.NakamaBase, error)
+	GetByName(ctx context.Context, name string) (responses.NakamaBase, error)
+	GetByFamilyID(ctx context.Context, familyID primitive.ObjectID) ([]responses.NakamaBase, error)
+	RegisterToFamily(ctx context.Context, req *requests.NakamaRegisterToFamily) error
 }

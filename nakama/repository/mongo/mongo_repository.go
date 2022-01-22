@@ -115,3 +115,17 @@ func (m *mongoNakamaRepository) GetByFamilyID(ctx context.Context, familyID prim
 
 	return nakamas, nil
 }
+
+func (m *mongoNakamaRepository) RegisterToFamily(ctx context.Context, id primitive.ObjectID, familyID primitive.ObjectID) error {
+	filter := bson.D{{Key: "_id", Value: id}}
+	updater := bson.D{
+		{Key: "$set", Value: bson.D{{Key: "family_ud", Value: familyID}}},
+	}
+
+	if _, err := m.coll.UpdateOne(ctx, filter, updater); err != nil {
+		log.Fatal(err)
+		return domain.ErrInternalServerError
+	}
+
+	return nil
+}
