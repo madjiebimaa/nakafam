@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type mongoNakamaRepository struct {
@@ -30,7 +31,16 @@ func (m *mongoNakamaRepository) Create(ctx context.Context, nakama *domain.Nakam
 }
 
 func (m *mongoNakamaRepository) Update(ctx context.Context, nakama *domain.Nakama) error {
-	if _, err := m.db.UpdateByID(ctx, nakama.ID, nakama); err != nil {
+	filter := bson.D{{Key: "_id", Value: nakama.ID}}
+	updater := bson.D{
+		{Key: "$set", Value: bson.D{{Key: "name", Value: nakama.Name}}},
+		{Key: "$set", Value: bson.D{{Key: "profile_image", Value: nakama.ProfileImage}}},
+		{Key: "$set", Value: bson.D{{Key: "description", Value: nakama.Description}}},
+		{Key: "$set", Value: bson.D{{Key: "social_media", Value: nakama.SocialMedia}}},
+		{Key: "$set", Value: bson.D{{Key: "updated_at", Value: nakama.UpdatedAt}}},
+	}
+
+	if _, err := m.db.UpdateOne(ctx, filter, updater); err != nil {
 		log.Fatal(err)
 		return domain.ErrInternalServerError
 	}
@@ -39,7 +49,8 @@ func (m *mongoNakamaRepository) Update(ctx context.Context, nakama *domain.Nakam
 }
 
 func (m *mongoNakamaRepository) Delete(ctx context.Context, id primitive.ObjectID) error {
-	if _, err := m.db.DeleteOne(ctx, domain.Nakama{ID: id}); err != nil {
+	filter := bson.D{{Key: "_id", Value: id}}
+	if _, err := m.db.DeleteOne(ctx, filter); err != nil {
 		log.Fatal(err)
 		return domain.ErrInternalServerError
 	}
@@ -49,7 +60,8 @@ func (m *mongoNakamaRepository) Delete(ctx context.Context, id primitive.ObjectI
 
 func (m *mongoNakamaRepository) GetByID(ctx context.Context, id primitive.ObjectID) (domain.Nakama, error) {
 	var nakama domain.Nakama
-	if err := m.db.FindOne(ctx, domain.Nakama{ID: id}).Decode(&nakama); err != nil {
+	filter := bson.D{{Key: "_id", Value: id}}
+	if err := m.db.FindOne(ctx, filter).Decode(&nakama); err != nil {
 		log.Fatal(err)
 		return nakama, domain.ErrInternalServerError
 	}
@@ -63,7 +75,8 @@ func (m *mongoNakamaRepository) GetByID(ctx context.Context, id primitive.Object
 
 func (m *mongoNakamaRepository) GetByName(ctx context.Context, name string) (domain.Nakama, error) {
 	var nakama domain.Nakama
-	if err := m.db.FindOne(ctx, domain.Nakama{Name: name}).Decode(&nakama); err != nil {
+	filter := bson.D{{Key: "name", Value: name}}
+	if err := m.db.FindOne(ctx, filter).Decode(&nakama); err != nil {
 		log.Fatal(err)
 		return nakama, domain.ErrInternalServerError
 	}
@@ -75,8 +88,10 @@ func (m *mongoNakamaRepository) GetByName(ctx context.Context, name string) (dom
 	return nakama, nil
 }
 
-func (m *mongoNakamaRepository) GetAll(ctx context.Context) ([]domain.Nakama, error) {
-	cur, err := m.db.Find(ctx, bson.M{})
+func (m *mongoNakamaRepository) GetByFamilyID(ctx context.Context, familyID primitive.ObjectID) ([]domain.Nakama, error) {
+	filter := bson.D{{Key: "family_id", Value: familyID}}
+	opts := options.Find().SetSort(bson.D{{Key: "name", Value: -1}})
+	cur, err := m.db.Find(ctx, filter, opts)
 	if err != nil {
 		log.Fatal(err)
 		return nil, domain.ErrInternalServerError

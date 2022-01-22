@@ -20,15 +20,15 @@ type SocialMedia struct {
 }
 
 type Nakama struct {
-	ID           primitive.ObjectID `json:"_id"`
-	Family       primitive.ObjectID `json:"family"`
-	Name         string             `json:"name"`
-	UserName     string             `json:"username"`
-	ProfileImage string             `json:"profile_image"`
-	Description  string             `json:"description"`
-	SocialMedia  SocialMedia        `json:"social_media"`
-	CreatedAt    time.Time          `json:"created_at"`
-	UpdatedAt    time.Time          `json:"updated_at"`
+	ID           primitive.ObjectID `json:"id" bson:"_id"`
+	FamilyID     primitive.ObjectID `json:"family" bson:"family_id"`
+	Name         string             `json:"name" bson:"name"`
+	UserName     string             `json:"username" bson:"username"`
+	ProfileImage string             `json:"profile_image" bson:"profile_image"`
+	Description  string             `json:"description" bson:"description"`
+	SocialMedia  *SocialMedia       `json:"social_media" bson:"social_media"`
+	CreatedAt    time.Time          `json:"created_at" bson:"created_at"`
+	UpdatedAt    time.Time          `json:"updated_at" bson:"updated_at"`
 }
 
 type NakamaRepository interface {
@@ -37,7 +37,7 @@ type NakamaRepository interface {
 	Delete(ctx context.Context, id primitive.ObjectID) error
 	GetByID(ctx context.Context, id primitive.ObjectID) (Nakama, error)
 	GetByName(ctx context.Context, name string) (Nakama, error)
-	GetAll(ctx context.Context) ([]Nakama, error)
+	GetByFamilyID(ctx context.Context, familyID primitive.ObjectID) ([]Nakama, error)
 }
 
 type NakamaUseCase interface {
@@ -46,5 +46,5 @@ type NakamaUseCase interface {
 	Delete(ctx context.Context, id primitive.ObjectID) error
 	GetByID(ctx context.Context, id primitive.ObjectID) (Nakama, error)
 	GetByName(ctx context.Context, name string) (Nakama, error)
-	GetAll(ctx context.Context) ([]Nakama, error)
+	GetByFamilyID(ctx context.Context, familyID primitive.ObjectID) ([]Nakama, error)
 }

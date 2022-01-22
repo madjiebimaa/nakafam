@@ -8,11 +8,12 @@ import (
 )
 
 type Family struct {
-	ID        primitive.ObjectID `json:"_id"`
-	Name      string             `json:"name"`
-	Nakamas   []Nakama           `json:"nakamas"`
-	CreatedAt time.Time          `json:"created_at"`
-	UpdatedAt time.Time          `json:"updated_at"`
+	ID          primitive.ObjectID `json:"id" bson:"_id"`
+	Name        string             `json:"name" bson:"name"`
+	FamilyImage string             `json:"family_image" bson:"family_image"`
+	Nakamas     []Nakama           `json:"nakamas" bson:"nakamas"`
+	CreatedAt   time.Time          `json:"created_at" bson:"created_at"`
+	UpdatedAt   time.Time          `json:"updated_at" bson:"updated_at"`
 }
 
 type FamilyRepository interface {

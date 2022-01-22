@@ -2,17 +2,13 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
-	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/madjiebimaa/nakafam/app/config"
 	"github.com/madjiebimaa/nakafam/app/mongo"
 	"github.com/madjiebimaa/nakafam/app/redis"
-	"github.com/madjiebimaa/nakafam/constant"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
@@ -42,14 +38,12 @@ func main() {
 		}
 	}()
 
-	nakafamDB := mn.Database(constant.DATABASE_NAME)
-	nakamaColl := nakafamDB.Collection(constant.NAKAMA_COLLECTION)
-	familyColl := nakafamDB.Collection(constant.FAMILY_COLLECTION)
-	fmt.Println(nakamaColl, familyColl)
+	// nakafamDB := mn.Database(constant.DATABASE_NAME)
+	// nakamaColl := nakafamDB.Collection(constant.NAKAMA_COLLECTION)
+	// familyColl := nakafamDB.Collection(constant.FAMILY_COLLECTION)
 
-	timeoutContextEnv, _ := strconv.Atoi(os.Getenv("TIMEOUT_CONTEXT"))
-	timeoutContext := time.Duration(timeoutContextEnv) * time.Second
-	fmt.Println(timeoutContext)
+	// timeoutContextEnv, _ := strconv.Atoi(os.Getenv("TIMEOUT_CONTEXT"))
+	// timeoutContext := time.Duration(timeoutContextEnv) * time.Second
 
 	if err := r.Run(os.Getenv("SERVER_ADDRESS")); err != nil {
 		log.Fatal(err)
