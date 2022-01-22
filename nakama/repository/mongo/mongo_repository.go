@@ -54,6 +54,10 @@ func (m *mongoNakamaRepository) GetByID(ctx context.Context, id primitive.Object
 		return nakama, domain.ErrInternalServerError
 	}
 
+	if nakama.ID == primitive.NilObjectID {
+		return nakama, domain.ErrNotFound
+	}
+
 	return nakama, nil
 }
 
@@ -62,6 +66,10 @@ func (m *mongoNakamaRepository) GetByName(ctx context.Context, name string) (dom
 	if err := m.db.FindOne(ctx, domain.Nakama{Name: name}).Decode(&nakama); err != nil {
 		log.Fatal(err)
 		return nakama, domain.ErrInternalServerError
+	}
+
+	if nakama.ID == primitive.NilObjectID {
+		return nakama, domain.ErrNotFound
 	}
 
 	return nakama, nil
@@ -79,6 +87,10 @@ func (m *mongoNakamaRepository) GetAll(ctx context.Context) ([]domain.Nakama, er
 	if err := cur.All(ctx, &nakamas); err != nil {
 		log.Fatal(err)
 		return nil, domain.ErrInternalServerError
+	}
+
+	if nakamas == nil {
+		return nil, domain.ErrNotFound
 	}
 
 	if cur.Err() != nil {

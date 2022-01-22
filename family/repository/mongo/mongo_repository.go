@@ -41,7 +41,7 @@ func (m *mongoFamilyRepository) Update(ctx context.Context, family *domain.Famil
 func (m *mongoFamilyRepository) Delete(ctx context.Context, id primitive.ObjectID) error {
 	if _, err := m.db.DeleteOne(ctx, domain.Family{ID: id}); err != nil {
 		log.Fatal(err)
-		return domain.ErrBadParamInput
+		return domain.ErrInternalServerError
 	}
 
 	return nil
@@ -54,6 +54,10 @@ func (m *mongoFamilyRepository) GetByID(ctx context.Context, id primitive.Object
 		return family, domain.ErrInternalServerError
 	}
 
+	if family.ID == primitive.NilObjectID {
+		return family, domain.ErrNotFound
+	}
+
 	return family, nil
 }
 
@@ -62,6 +66,10 @@ func (m *mongoFamilyRepository) GetByName(ctx context.Context, name string) (dom
 	if err := m.db.FindOne(ctx, domain.Family{Name: name}).Decode(&family); err != nil {
 		log.Fatal(err)
 		return family, domain.ErrInternalServerError
+	}
+
+	if family.ID == primitive.NilObjectID {
+		return family, domain.ErrNotFound
 	}
 
 	return family, nil
@@ -73,11 +81,16 @@ func (m *mongoFamilyRepository) GetAll(ctx context.Context) ([]domain.Family, er
 		log.Fatal(err)
 		return nil, domain.ErrInternalServerError
 	}
+	defer cur.Close(ctx)
 
 	var families []domain.Family
 	if err := cur.All(ctx, &families); err != nil {
 		log.Fatal(err)
 		return nil, domain.ErrInternalServerError
+	}
+
+	if families == nil {
+		return families, domain.ErrNotFound
 	}
 
 	if err := cur.Err(); err != nil {
