@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/madjiebimaa/nakafam/family/delivery/http/requests"
+	"github.com/madjiebimaa/nakafam/family/delivery/http/responses"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -27,10 +29,10 @@ type FamilyRepository interface {
 }
 
 type FamilyUseCase interface {
-	Create(ctx context.Context, family *Family) error
-	Update(ctx context.Context, family *Family) error
-	Delete(ctx context.Context, id primitive.ObjectID) error
-	GetByID(ctx context.Context, id primitive.ObjectID) (Family, error)
-	GetByName(ctx context.Context, name string) (Family, error)
-	GetAll(ctx context.Context) ([]Family, error)
+	Create(c context.Context, req *requests.FamilyCreate) error
+	Update(c context.Context, req *requests.FamilyUpdate) error
+	Delete(c context.Context, id primitive.ObjectID) error
+	GetByID(c context.Context, id primitive.ObjectID) (responses.FamilyBase, error)
+	GetByName(c context.Context, name string) (responses.FamilyBase, error)
+	GetAll(c context.Context) ([]responses.FamilyBase, error)
 }

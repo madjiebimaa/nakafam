@@ -7,6 +7,7 @@ import (
 
 	"github.com/madjiebimaa/nakafam/domain"
 	"github.com/madjiebimaa/nakafam/helpers"
+
 	"github.com/madjiebimaa/nakafam/nakama/delivery/http/requests"
 	"github.com/madjiebimaa/nakafam/nakama/delivery/http/responses"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -19,8 +20,16 @@ type nakamaUseCase struct {
 	contextTimeout time.Duration
 }
 
-func NewNakamaUseCase() domain.NakamaUseCase {
-	return &nakamaUseCase{}
+func NewNakamaUseCase(
+	nakamRepo domain.NakamaRepository,
+	familyRepo domain.FamilyRepository,
+	contextTimeout time.Duration,
+) domain.NakamaUseCase {
+	return &nakamaUseCase{
+		nakamRepo,
+		familyRepo,
+		contextTimeout,
+	}
 }
 
 func (n *nakamaUseCase) Create(c context.Context, req *requests.NakamaCreate) error {
@@ -52,7 +61,7 @@ func (n *nakamaUseCase) Update(c context.Context, req *requests.NakamaUpdate) er
 
 	now := time.Now()
 	nakama := domain.Nakama{
-		ID:           req.ID,
+		ID:           req.NakamaID,
 		FamilyID:     req.FamilyID,
 		Name:         req.Name,
 		UserName:     req.UserName,
@@ -136,7 +145,7 @@ func (n *nakamaUseCase) RegisterToFamily(c context.Context, req *requests.Nakama
 		return domain.ErrInternalServerError
 	}
 
-	nakama, err := n.nakamRepo.GetByID(ctx, req.ID)
+	nakama, err := n.nakamRepo.GetByID(ctx, req.NakamaID)
 	if err != nil {
 		return err
 	}

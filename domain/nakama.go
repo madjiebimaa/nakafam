@@ -45,11 +45,11 @@ type NakamaRepository interface {
 }
 
 type NakamaUseCase interface {
-	Create(ctx context.Context, req *requests.NakamaCreate) error
-	Update(ctx context.Context, req *requests.NakamaUpdate) error
-	Delete(ctx context.Context, id primitive.ObjectID) error
-	GetByID(ctx context.Context, id primitive.ObjectID) (responses.NakamaBase, error)
-	GetByName(ctx context.Context, name string) (responses.NakamaBase, error)
-	GetByFamilyID(ctx context.Context, familyID primitive.ObjectID) ([]responses.NakamaBase, error)
-	RegisterToFamily(ctx context.Context, req *requests.NakamaRegisterToFamily) error
+	Create(c context.Context, req *requests.NakamaCreate) error
+	Update(c context.Context, req *requests.NakamaUpdate) error
+	Delete(c context.Context, id primitive.ObjectID) error
+	GetByID(c context.Context, id primitive.ObjectID) (responses.NakamaBase, error)
+	GetByName(c context.Context, name string) (responses.NakamaBase, error)
+	GetByFamilyID(c context.Context, familyID primitive.ObjectID) ([]responses.NakamaBase, error)
+	RegisterToFamily(c context.Context, req *requests.NakamaRegisterToFamily) error
 }
