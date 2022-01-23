@@ -52,7 +52,7 @@ func (u *UserDelivery) Login(c *gin.Context) {
 	// set userID to session means user have logged in
 	// similar in JWT that create access token
 	sess := sessions.Default(c)
-	sess.Set("userID", user.ID)
+	sess.Set("user_id", user.ID)
 	if err := sess.Save(); err != nil {
 		helpers.FailResponse(c, http.StatusInternalServerError, "session", err)
 	}
@@ -60,18 +60,35 @@ func (u *UserDelivery) Login(c *gin.Context) {
 	helpers.SuccessResponse(c, http.StatusNoContent, nil)
 }
 
-func (u *UserDelivery) RegisterAsLeader(c *gin.Context) {
+func (u *UserDelivery) UpgradeRole(c *gin.Context) {
+	id, _ := c.Get("user_id")
+	userID := id.(primitive.ObjectID)
+	ctx := c.Request.Context()
+	res, err := u.userUCase.UpgradeRole(ctx, userID)
+	if err != nil {
+		helpers.FailResponse(c, helpers.GetStatusCode(err), "service", err)
+	}
 
+	helpers.SuccessResponse(c, http.StatusOK, res)
+}
+
+func (u *UserDelivery) ToLeaderRole(c *gin.Context) {
+	token := c.Param("token")
+	if token == "" {
+		helpers.FailResponse(c, http.StatusBadRequest, "token", domain.ErrBadParamInput)
+	}
+
+	ctx := c.Request.Context()
+	if err := u.userUCase.ToLeaderRole(ctx, token); err != nil {
+		helpers.FailResponse(c, helpers.GetStatusCode(err), "service", err)
+	}
+
+	helpers.SuccessResponse(c, http.StatusNoContent, nil)
 }
 
 func (u *UserDelivery) Me(c *gin.Context) {
-	sess := sessions.Default(c)
-	val := sess.Get("userID")
-	if val == nil {
-		helpers.FailResponse(c, http.StatusUnauthorized, "session", domain.ErrUnAuthorized)
-	}
-
-	userID := val.(primitive.ObjectID)
+	id, _ := c.Get("user_id")
+	userID := id.(primitive.ObjectID)
 	ctx := c.Request.Context()
 	user, err := u.userUCase.Me(ctx, userID)
 	if err != nil {
@@ -79,4 +96,14 @@ func (u *UserDelivery) Me(c *gin.Context) {
 	}
 
 	helpers.SuccessResponse(c, http.StatusOK, user)
+}
+
+func (u *UserDelivery) Logout(c *gin.Context) {
+	sess := sessions.Default(c)
+	sess.Clear()
+	if err := sess.Save(); err != nil {
+		helpers.FailResponse(c, http.StatusUnauthorized, "session", err)
+	}
+
+	helpers.SuccessResponse(c, http.StatusNoContent, nil)
 }

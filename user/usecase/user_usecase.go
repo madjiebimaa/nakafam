@@ -2,10 +2,13 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 	"log"
-	"os"
 	"time"
 
+	"github.com/go-redis/redis/v8"
+	"github.com/google/uuid"
+	"github.com/madjiebimaa/nakafam/constant"
 	"github.com/madjiebimaa/nakafam/domain"
 	"github.com/madjiebimaa/nakafam/helpers"
 	"github.com/madjiebimaa/nakafam/user/delivery/http/requests"
@@ -89,19 +92,45 @@ func (u *userUseCase) Login(c context.Context, req *requests.UserRegisterOrLogin
 	return res, nil
 }
 
-func (u *userUseCase) RegisterAsLeader(c context.Context, req *requests.UserRegisterAsLeader) error {
+func (u *userUseCase) UpgradeRole(c context.Context, id primitive.ObjectID) (string, error) {
 	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
 	defer cancel()
 
-	key := os.Getenv("TOKEN_REGISTER_LEADER_PREFIX") + req.Token
+	user, err := u.userRepo.GetByID(ctx, id)
+	if err != nil {
+		return "", err
+	}
+
+	if user.ID == primitive.NilObjectID {
+		return "", domain.ErrNotFound
+	}
+
+	token := uuid.NewString()
+	key := constant.TOKEN_REGISTER_LEADER_PREFIX + token
+	if err := u.tokenRepo.Set(ctx, key, user.ID, 3*24*time.Hour); err != nil {
+		return "", err
+	}
+
+	url := fmt.Sprintf("http://localhost:3000/api/users/upgrade-role/%s", token)
+	return url, nil
+}
+
+func (u *userUseCase) ToLeaderRole(c context.Context, token string) error {
+	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
+	defer cancel()
+
+	key := constant.TOKEN_REGISTER_LEADER_PREFIX + token
 	val, err := u.tokenRepo.Get(ctx, key)
+	if err == redis.Nil {
+		return domain.ErrNotFound
+	}
+
 	if err != nil {
 		return err
 	}
 
 	userID, err := primitive.ObjectIDFromHex(val)
 	if err != nil {
-		log.Fatal(err)
 		return domain.ErrBadParamInput
 	}
 
@@ -114,7 +143,7 @@ func (u *userUseCase) RegisterAsLeader(c context.Context, req *requests.UserRegi
 		return domain.ErrNotFound
 	}
 
-	if err := u.userRepo.RegisterAsLeader(ctx, user.ID); err != nil {
+	if err := u.userRepo.ToLeaderRole(ctx, user.ID); err != nil {
 		return err
 	}
 

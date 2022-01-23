@@ -22,12 +22,13 @@ type UserRepository interface {
 	Register(ctx context.Context, user *User) error
 	GetByID(ctx context.Context, id primitive.ObjectID) (User, error)
 	GetByEmail(ctx context.Context, email string) (User, error)
-	RegisterAsLeader(ctx context.Context, id primitive.ObjectID) error
+	ToLeaderRole(ctx context.Context, id primitive.ObjectID) error
 }
 
 type UserUseCase interface {
 	Register(c context.Context, req *requests.UserRegisterOrLogin) error
 	Login(c context.Context, req *requests.UserRegisterOrLogin) (responses.UserBase, error)
-	RegisterAsLeader(c context.Context, req *requests.UserRegisterAsLeader) error
+	UpgradeRole(c context.Context, id primitive.ObjectID) (string, error)
+	ToLeaderRole(c context.Context, token string) error
 	Me(c context.Context, id primitive.ObjectID) (responses.UserBase, error)
 }

@@ -52,7 +52,7 @@ func (m *mongoUserRepository) GetByEmail(ctx context.Context, email string) (dom
 	return user, nil
 }
 
-func (m *mongoUserRepository) RegisterAsLeader(ctx context.Context, id primitive.ObjectID) error {
+func (m *mongoUserRepository) ToLeaderRole(ctx context.Context, id primitive.ObjectID) error {
 	filter := bson.D{{Key: "_id", Value: id}}
 	updater := bson.D{
 		{Key: "$set", Value: bson.D{{Key: "role", Value: "leader"}}},
