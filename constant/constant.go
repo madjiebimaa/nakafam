@@ -1,7 +1,6 @@
 package constant
 
 const (
-	DATABASE_NAME     = "nakafam"
-	NAKAMA_COLLECTION = "nakama"
-	FAMILY_COLLECTION = "family"
+	TOKEN_REGISTER_LEADER_PREFIX = "reg-leader"
+	SESSION_NAME                 = "SESSION"
 )

@@ -5,10 +5,13 @@ import (
 	"log"
 	"os"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/madjiebimaa/nakafam/app/config"
 	"github.com/madjiebimaa/nakafam/app/mongo"
 	"github.com/madjiebimaa/nakafam/app/redis"
+	"github.com/madjiebimaa/nakafam/app/store"
+	"github.com/madjiebimaa/nakafam/constant"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
@@ -30,10 +33,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// db := cl.Database(constant.DATABASE_NAME)
-	// nakamaColl := db.Collection(constant.NAKAMA_COLLECTION)
-	// familyColl := db.Collection(constant.FAMILY_COLLECTION)
-
 	redisConfig := redis.NewConfigDB(os.Getenv("REDIS_HOST"), os.Getenv("REDIS_PORT"))
 	rdb := redisConfig.Init(ctx)
 	defer func() {
@@ -41,6 +40,15 @@ func main() {
 			log.Fatal(err)
 		}
 	}()
+
+	storeConfig := store.NewConfigStore(os.Getenv("REDIS_HOST"), os.Getenv("REDIS_PORT"))
+	store := storeConfig.Init()
+
+	r.Use(sessions.Sessions(constant.SESSION_NAME, store))
+
+	// db := cl.Database(os.Getenv("DATABASE_NAME"))
+	// collNakama := db.Collection(os.Getenv("COLLECTION_NAKAMA"))
+	// collFamily := db.Collection(os.Getenv("COLLECTION_FAMILY"))
 
 	// timeoutContextEnv, _ := strconv.Atoi(os.Getenv("TIMEOUT_CONTEXT"))
 	// timeoutContext := time.Duration(timeoutContextEnv) * time.Second

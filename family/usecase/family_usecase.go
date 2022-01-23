@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/madjiebimaa/nakafam/domain"
@@ -9,6 +10,7 @@ import (
 	"github.com/madjiebimaa/nakafam/family/delivery/http/responses"
 	"github.com/madjiebimaa/nakafam/helpers"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type familyUseCase struct {
@@ -36,6 +38,10 @@ func (f *familyUseCase) Create(c context.Context, req *requests.FamilyCreate) er
 	nakama, err := f.nakamaRepo.GetByID(ctx, req.NakamaID)
 	if err != nil {
 		return err
+	}
+
+	if nakama.ID == primitive.NilObjectID {
+		return domain.ErrNotFound
 	}
 
 	now := time.Now()
@@ -69,12 +75,29 @@ func (f *familyUseCase) Update(c context.Context, req *requests.FamilyUpdate) er
 		return nil
 	}
 
-	// TODO: conditional change value base on exist or not that field
-	family.Name = family.Name
-	family.FamilyImage = req.FamilyImage
-	family.Password = req.Password
-	family.UpdatedAt = time.Now()
+	if family.ID == primitive.NilObjectID {
+		return domain.ErrNotFound
+	}
 
+	if req.Name != "" {
+		family.Name = req.Name
+	}
+
+	if req.Password != "" {
+		hashedPass, err := bcrypt.GenerateFromPassword([]byte(req.Password), 12)
+		if err != nil {
+			log.Fatal(err)
+			return domain.ErrInternalServerError
+		}
+
+		family.Password = string(hashedPass)
+	}
+
+	if req.FamilyImage != "" {
+		family.FamilyImage = req.FamilyImage
+	}
+
+	family.UpdatedAt = time.Now()
 	if err := f.familyRepo.Update(ctx, &family); err != nil {
 		return err
 	}
@@ -86,6 +109,14 @@ func (f *familyUseCase) Delete(c context.Context, id primitive.ObjectID) error {
 	ctx, cancel := context.WithTimeout(c, f.contextTimeout)
 	defer cancel()
 
+	family, err := f.familyRepo.GetByID(ctx, id)
+	if err != nil {
+		return nil
+	}
+
+	if family.ID == primitive.NilObjectID {
+		return domain.ErrNotFound
+	}
 	if err := f.familyRepo.Delete(ctx, id); err != nil {
 		return err
 	}
@@ -102,6 +133,10 @@ func (f *familyUseCase) GetByID(c context.Context, id primitive.ObjectID) (respo
 		return responses.FamilyBase{}, err
 	}
 
+	if family.ID == primitive.NilObjectID {
+		return responses.FamilyBase{}, domain.ErrNotFound
+	}
+
 	res := helpers.ToFamilyBase(&family)
 
 	return res, nil
@@ -116,6 +151,10 @@ func (f *familyUseCase) GetByName(c context.Context, name string) (responses.Fam
 		return responses.FamilyBase{}, err
 	}
 
+	if family.ID == primitive.NilObjectID {
+		return responses.FamilyBase{}, domain.ErrNotFound
+	}
+
 	res := helpers.ToFamilyBase(&family)
 
 	return res, nil
@@ -128,6 +167,10 @@ func (f *familyUseCase) GetAll(c context.Context) ([]responses.FamilyBase, error
 	families, err := f.familyRepo.GetAll(ctx)
 	if err != nil {
 		return nil, err
+	}
+
+	if families == nil {
+		return nil, domain.ErrNotFound
 	}
 
 	res := helpers.ToFamiliesBase(families)

@@ -21,10 +21,6 @@ func NewRedisTokenRepository(rdb *redis.Client) domain.TokenRepository {
 
 func (r *redisTokenRepository) Get(ctx context.Context, key string) (string, error) {
 	val, err := r.rdb.Get(ctx, key).Result()
-	if err == redis.Nil || val == "" {
-		return "", domain.ErrNotFound
-	}
-
 	if err != nil {
 		log.Fatal(err)
 		return "", domain.ErrInternalServerError

@@ -98,6 +98,10 @@ func (n *nakamaUseCase) GetByID(c context.Context, id primitive.ObjectID) (respo
 		return responses.NakamaBase{}, err
 	}
 
+	if nakama.ID == primitive.NilObjectID {
+		return responses.NakamaBase{}, domain.ErrNotFound
+	}
+
 	res := helpers.ToNakamaBase(&nakama)
 
 	return res, nil
@@ -112,6 +116,10 @@ func (n *nakamaUseCase) GetByName(c context.Context, name string) (responses.Nak
 		return responses.NakamaBase{}, err
 	}
 
+	if nakama.ID == primitive.NilObjectID {
+		return responses.NakamaBase{}, domain.ErrNotFound
+	}
+
 	res := helpers.ToNakamaBase(&nakama)
 
 	return res, nil
@@ -124,6 +132,10 @@ func (n *nakamaUseCase) GetByFamilyID(c context.Context, familyID primitive.Obje
 	nakamas, err := n.nakamRepo.GetByFamilyID(ctx, familyID)
 	if err != nil {
 		return nil, err
+	}
+
+	if nakamas == nil {
+		return nil, domain.ErrNotFound
 	}
 
 	res := helpers.ToNakamasBase(nakamas)

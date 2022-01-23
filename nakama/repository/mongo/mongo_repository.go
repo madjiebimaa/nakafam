@@ -63,11 +63,7 @@ func (m *mongoNakamaRepository) GetByID(ctx context.Context, id primitive.Object
 	filter := bson.D{{Key: "_id", Value: id}}
 	if err := m.coll.FindOne(ctx, filter).Decode(&nakama); err != nil {
 		log.Fatal(err)
-		return nakama, domain.ErrInternalServerError
-	}
-
-	if nakama.ID == primitive.NilObjectID {
-		return nakama, domain.ErrNotFound
+		return domain.Nakama{}, domain.ErrInternalServerError
 	}
 
 	return nakama, nil
@@ -78,11 +74,7 @@ func (m *mongoNakamaRepository) GetByName(ctx context.Context, name string) (dom
 	filter := bson.D{{Key: "name", Value: name}}
 	if err := m.coll.FindOne(ctx, filter).Decode(&nakama); err != nil {
 		log.Fatal(err)
-		return nakama, domain.ErrInternalServerError
-	}
-
-	if nakama.ID == primitive.NilObjectID {
-		return nakama, domain.ErrNotFound
+		return domain.Nakama{}, domain.ErrInternalServerError
 	}
 
 	return nakama, nil
@@ -102,10 +94,6 @@ func (m *mongoNakamaRepository) GetByFamilyID(ctx context.Context, familyID prim
 	if err := cur.All(ctx, &nakamas); err != nil {
 		log.Fatal(err)
 		return nil, domain.ErrInternalServerError
-	}
-
-	if nakamas == nil {
-		return nil, domain.ErrNotFound
 	}
 
 	if cur.Err() != nil {

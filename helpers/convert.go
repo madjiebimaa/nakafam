@@ -4,6 +4,7 @@ import (
 	"github.com/madjiebimaa/nakafam/domain"
 	familyRes "github.com/madjiebimaa/nakafam/family/delivery/http/responses"
 	nakamaRes "github.com/madjiebimaa/nakafam/nakama/delivery/http/responses"
+	userRes "github.com/madjiebimaa/nakafam/user/delivery/http/responses"
 )
 
 func ToNakamaBase(nakama *domain.Nakama) nakamaRes.NakamaBase {
@@ -48,4 +49,14 @@ func ToFamiliesBase(families []domain.Family) []familyRes.FamilyBase {
 	}
 
 	return familiesBase
+}
+
+func ToUserBase(user *domain.User) userRes.UserBase {
+	return userRes.UserBase{
+		ID:        user.ID,
+		Email:     user.Email,
+		Role:      user.Role,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+	}
 }
