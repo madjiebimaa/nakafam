@@ -6,6 +6,7 @@ import (
 )
 
 type NakamaCreate struct {
+	UserID       primitive.ObjectID         `json:"user_id"`
 	Name         string                     `json:"name"`
 	UserName     string                     `json:"username"`
 	ProfileImage string                     `json:"profile_image"`

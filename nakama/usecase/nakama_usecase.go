@@ -39,6 +39,7 @@ func (n *nakamaUseCase) Create(c context.Context, req *requests.NakamaCreate) er
 	now := time.Now()
 	nakama := domain.Nakama{
 		ID:           primitive.NewObjectID(),
+		UserID:       req.UserID,
 		Name:         req.Name,
 		UserName:     req.UserName,
 		ProfileImage: req.ProfileImage,
@@ -103,7 +104,6 @@ func (n *nakamaUseCase) GetByID(c context.Context, id primitive.ObjectID) (respo
 	}
 
 	res := helpers.ToNakamaBase(&nakama)
-
 	return res, nil
 }
 
@@ -121,7 +121,6 @@ func (n *nakamaUseCase) GetByName(c context.Context, name string) (responses.Nak
 	}
 
 	res := helpers.ToNakamaBase(&nakama)
-
 	return res, nil
 }
 
@@ -139,7 +138,6 @@ func (n *nakamaUseCase) GetByFamilyID(c context.Context, familyID primitive.Obje
 	}
 
 	res := helpers.ToNakamasBase(nakamas)
-
 	return res, nil
 }
 
