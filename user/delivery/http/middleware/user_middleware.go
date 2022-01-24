@@ -28,6 +28,32 @@ func (u *userMiddleware) IsAuth(c *gin.Context) {
 	c.Next()
 }
 
-func (u *userMiddleware) IsStaff(c *gin.Context) {}
+func (u *userMiddleware) IsStaff(c *gin.Context) {
+	sess := sessions.Default(c)
+	sessionID := sess.Get("user_role")
+	if sessionID == nil {
+		helpers.FailResponse(c, http.StatusUnauthorized, "session", domain.ErrUnAuthorized)
+	}
 
-func (u *userMiddleware) IsLeader(c *gin.Context) {}
+	role := sessionID.(string)
+	if role != "staff" {
+		helpers.FailResponse(c, http.StatusUnauthorized, "session", domain.ErrUnAuthorized)
+	}
+
+	c.Next()
+}
+
+func (u *userMiddleware) IsLeader(c *gin.Context) {
+	sess := sessions.Default(c)
+	sessionID := sess.Get("user_role")
+	if sessionID == nil {
+		helpers.FailResponse(c, http.StatusUnauthorized, "session", domain.ErrUnAuthorized)
+	}
+
+	role := sessionID.(string)
+	if role != "leader" {
+		helpers.FailResponse(c, http.StatusUnauthorized, "session", domain.ErrUnAuthorized)
+	}
+
+	c.Next()
+}
