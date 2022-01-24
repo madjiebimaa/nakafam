@@ -32,30 +32,6 @@ func NewNakamaUseCase(
 	}
 }
 
-func (n *nakamaUseCase) Create(c context.Context, req *requests.NakamaCreate) error {
-	ctx, cancel := context.WithTimeout(c, n.contextTimeout)
-	defer cancel()
-
-	now := time.Now()
-	nakama := domain.Nakama{
-		ID:           primitive.NewObjectID(),
-		UserID:       req.UserID,
-		Name:         req.Name,
-		UserName:     req.UserName,
-		ProfileImage: req.ProfileImage,
-		Description:  req.Description,
-		SocialMedia:  (*domain.SocialMedia)(req.SocialMedia),
-		CreatedAt:    now,
-		UpdatedAt:    now,
-	}
-
-	if err := n.nakamRepo.Create(ctx, &nakama); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (n *nakamaUseCase) Update(c context.Context, req *requests.NakamaUpdate) error {
 	ctx, cancel := context.WithTimeout(c, n.contextTimeout)
 	defer cancel()
@@ -124,11 +100,11 @@ func (n *nakamaUseCase) GetByName(c context.Context, name string) (responses.Nak
 	return res, nil
 }
 
-func (n *nakamaUseCase) GetByFamilyID(c context.Context, familyID primitive.ObjectID) ([]responses.NakamaBase, error) {
+func (n *nakamaUseCase) GetAll(c context.Context) ([]responses.NakamaBase, error) {
 	ctx, cancel := context.WithTimeout(c, n.contextTimeout)
 	defer cancel()
 
-	nakamas, err := n.nakamRepo.GetByFamilyID(ctx, familyID)
+	nakamas, err := n.nakamRepo.GetAll(ctx)
 	if err != nil {
 		return nil, err
 	}

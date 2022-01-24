@@ -11,19 +11,19 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type UserDelivery struct {
+type UserHandler struct {
 	userUCase domain.UserUseCase
 }
 
-func NewUserDelivery(
+func NewUserHandler(
 	userUCase domain.UserUseCase,
-) *UserDelivery {
-	return &UserDelivery{
+) *UserHandler {
+	return &UserHandler{
 		userUCase,
 	}
 }
 
-func (u *UserDelivery) Register(c *gin.Context) {
+func (u *UserHandler) Register(c *gin.Context) {
 	var req requests.UserRegisterOrLogin
 	if err := c.ShouldBindJSON(&req); err != nil {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
@@ -37,7 +37,7 @@ func (u *UserDelivery) Register(c *gin.Context) {
 	helpers.SuccessResponse(c, http.StatusNoContent, nil)
 }
 
-func (u *UserDelivery) Login(c *gin.Context) {
+func (u *UserHandler) Login(c *gin.Context) {
 	var req requests.UserRegisterOrLogin
 	if err := c.ShouldBindJSON(&req); err != nil {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
@@ -60,7 +60,7 @@ func (u *UserDelivery) Login(c *gin.Context) {
 	helpers.SuccessResponse(c, http.StatusNoContent, nil)
 }
 
-func (u *UserDelivery) UpgradeRole(c *gin.Context) {
+func (u *UserHandler) UpgradeRole(c *gin.Context) {
 	id, _ := c.Get("user_id")
 	userID := id.(primitive.ObjectID)
 	ctx := c.Request.Context()
@@ -72,7 +72,7 @@ func (u *UserDelivery) UpgradeRole(c *gin.Context) {
 	helpers.SuccessResponse(c, http.StatusOK, res)
 }
 
-func (u *UserDelivery) ToLeaderRole(c *gin.Context) {
+func (u *UserHandler) ToLeaderRole(c *gin.Context) {
 	token := c.Param("token")
 	if token == "" {
 		helpers.FailResponse(c, http.StatusBadRequest, "token", domain.ErrBadParamInput)
@@ -86,7 +86,7 @@ func (u *UserDelivery) ToLeaderRole(c *gin.Context) {
 	helpers.SuccessResponse(c, http.StatusNoContent, nil)
 }
 
-func (u *UserDelivery) Me(c *gin.Context) {
+func (u *UserHandler) Me(c *gin.Context) {
 	id, _ := c.Get("user_id")
 	userID := id.(primitive.ObjectID)
 	ctx := c.Request.Context()
@@ -98,11 +98,28 @@ func (u *UserDelivery) Me(c *gin.Context) {
 	helpers.SuccessResponse(c, http.StatusOK, user)
 }
 
-func (u *UserDelivery) Logout(c *gin.Context) {
+func (u *UserHandler) Logout(c *gin.Context) {
 	sess := sessions.Default(c)
 	sess.Clear()
 	if err := sess.Save(); err != nil {
 		helpers.FailResponse(c, http.StatusUnauthorized, "session", err)
+	}
+
+	helpers.SuccessResponse(c, http.StatusNoContent, nil)
+}
+
+func (u *UserHandler) CreateNakama(c *gin.Context) {
+	var req requests.UserCreateNakama
+	if err := c.ShouldBindJSON(&req); err != nil {
+		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
+	}
+
+	id, _ := c.Get("user_id")
+	userID := id.(primitive.ObjectID)
+	req.UserID = userID
+	ctx := c.Request.Context()
+	if err := u.userUCase.CreateNakama(ctx, &req); err != nil {
+		helpers.FailResponse(c, helpers.GetStatusCode(err), "service", err)
 	}
 
 	helpers.SuccessResponse(c, http.StatusNoContent, nil)

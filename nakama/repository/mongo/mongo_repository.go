@@ -104,6 +104,29 @@ func (m *mongoNakamaRepository) GetByFamilyID(ctx context.Context, familyID prim
 	return nakamas, nil
 }
 
+func (m *mongoNakamaRepository) GetAll(ctx context.Context) ([]domain.Nakama, error) {
+	opts := options.Find().SetSort(bson.D{{Key: "name", Value: -1}})
+	cur, err := m.coll.Find(ctx, bson.D{{}}, opts)
+	if err != nil {
+		log.Fatal(err)
+		return nil, domain.ErrInternalServerError
+	}
+	defer cur.Close(ctx)
+
+	var nakamas []domain.Nakama
+	if err := cur.All(ctx, &nakamas); err != nil {
+		log.Fatal(err)
+		return nil, domain.ErrInternalServerError
+	}
+
+	if cur.Err() != nil {
+		log.Fatal(cur.Err())
+		return nil, domain.ErrInternalServerError
+	}
+
+	return nakamas, nil
+}
+
 func (m *mongoNakamaRepository) GetByName(ctx context.Context, name string) (domain.Nakama, error) {
 	var nakama domain.Nakama
 	filter := bson.D{{Key: "name", Value: name}}

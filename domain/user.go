@@ -31,4 +31,5 @@ type UserUseCase interface {
 	UpgradeRole(c context.Context, id primitive.ObjectID) (string, error)
 	ToLeaderRole(c context.Context, token string) error
 	Me(c context.Context, id primitive.ObjectID) (responses.UserBase, error)
+	CreateNakama(c context.Context, req *requests.UserCreateNakama) error
 }

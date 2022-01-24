@@ -18,36 +18,48 @@ func NewNakamaDelivery(nakamaUCase domain.NakamaUseCase) *NakamaDelivery {
 	return &NakamaDelivery{nakamaUCase}
 }
 
-func (n *NakamaDelivery) Create(c *gin.Context) {
-	var req requests.NakamaCreate
-	if err := c.ShouldBindJSON(&req); err != nil {
-		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
-	}
-
-	id, _ := c.Get("user_id")
-	userID := id.(primitive.ObjectID)
-	req.UserID = userID
-	ctx := c.Request.Context()
-	if err := n.nakamaUCase.Create(ctx, &req); err != nil {
-		helpers.FailResponse(c, helpers.GetStatusCode(err), "service", err)
-	}
-
-	helpers.SuccessResponse(c, http.StatusNoContent, nil)
-}
-
 func (n *NakamaDelivery) Update(c *gin.Context) {
 	var req requests.NakamaUpdate
 	if err := c.ShouldBindJSON(&req); err != nil {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
 
-	// TODO: not implemented
+	id := c.Param("nakama_id")
+	if id == "" {
+		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
+	}
+
+	nakamaID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
+	}
+
+	req.NakamaID = nakamaID
+	ctx := c.Request.Context()
+	if err := n.nakamaUCase.Update(ctx, &req); err != nil {
+		helpers.FailResponse(c, helpers.GetStatusCode(err), "service", err)
+	}
 
 	helpers.SuccessResponse(c, http.StatusNoContent, nil)
 }
 
 func (n *NakamaDelivery) Delete(c *gin.Context) {
-	// TODO: most likely not have to implemented
+	id := c.Param("nakama_id")
+	if id == "" {
+		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
+	}
+
+	nakamaID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
+	}
+
+	ctx := c.Request.Context()
+	if err := n.nakamaUCase.Delete(ctx, nakamaID); err != nil {
+		helpers.FailResponse(c, helpers.GetStatusCode(err), "service", err)
+	}
+
+	helpers.SuccessResponse(c, http.StatusNoContent, nil)
 }
 
 func (n *NakamaDelivery) GetByID(c *gin.Context) {
@@ -70,24 +82,9 @@ func (n *NakamaDelivery) GetByID(c *gin.Context) {
 	helpers.SuccessResponse(c, http.StatusOK, res)
 }
 
-func (n *NakamaDelivery) GetByName(c *gin.Context) {
-	// TODO: most likely not have to implemented
-
-}
-
-func (n *NakamaDelivery) GetByFamilyID(c *gin.Context) {
-	id := c.Param("nakama_id")
-	if id == "" {
-		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
-	}
-
-	familyID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
-	}
-
+func (n *NakamaDelivery) GetAll(c *gin.Context) {
 	ctx := c.Request.Context()
-	res, err := n.nakamaUCase.GetByFamilyID(ctx, familyID)
+	res, err := n.nakamaUCase.GetAll(ctx)
 	if err != nil {
 		helpers.FailResponse(c, helpers.GetStatusCode(err), "service", err)
 	}

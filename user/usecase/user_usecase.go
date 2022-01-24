@@ -19,17 +19,20 @@ import (
 
 type userUseCase struct {
 	userRepo       domain.UserRepository
+	nakamaRepo     domain.NakamaRepository
 	tokenRepo      domain.TokenRepository
 	contextTimeout time.Duration
 }
 
 func NewUserUseCase(
 	userRepo domain.UserRepository,
+	nakamaRepo domain.NakamaRepository,
 	tokenRepo domain.TokenRepository,
 	contextTimeout time.Duration,
 ) domain.UserUseCase {
 	return &userUseCase{
 		userRepo,
+		nakamaRepo,
 		tokenRepo,
 		contextTimeout,
 	}
@@ -165,4 +168,38 @@ func (u *userUseCase) Me(c context.Context, id primitive.ObjectID) (responses.Us
 
 	res := helpers.ToUserBase(&user)
 	return res, nil
+}
+
+func (u *userUseCase) CreateNakama(c context.Context, req *requests.UserCreateNakama) error {
+	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
+	defer cancel()
+
+	user, err := u.userRepo.GetByID(ctx, req.UserID)
+	if err != nil {
+		return err
+	}
+
+	if user.ID == primitive.NilObjectID {
+		return domain.ErrNotFound
+	}
+
+	now := time.Now()
+	nakama := domain.Nakama{
+		ID:           primitive.NewObjectID(),
+		UserID:       req.UserID,
+		FamilyID:     primitive.NilObjectID,
+		Name:         req.Name,
+		UserName:     req.UserName,
+		ProfileImage: req.ProfileImage,
+		Description:  req.Description,
+		SocialMedia:  (*domain.SocialMedia)(req.SocialMedia),
+		CreatedAt:    now,
+		UpdatedAt:    now,
+	}
+
+	if err := u.nakamaRepo.Create(ctx, &nakama); err != nil {
+		return err
+	}
+
+	return nil
 }
