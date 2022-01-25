@@ -1,0 +1,13 @@
+@hostname = localhost
+@port = 3000
+@host = {{hostname}}:{{port}}
+@baseURL = http://{{host}}/api
+@session_token = 
+
+### Get By ID
+GET {{baseURL}}/families/:family_id HTTP/1.1
+
+############# LEADER #############
+
+### Delete By ID
+DELETE  {{baseURL}}/families/:family_id HTTP/1.1

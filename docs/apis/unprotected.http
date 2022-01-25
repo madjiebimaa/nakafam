@@ -1,0 +1,21 @@
+@hostname = localhost
+@port = 3000
+@host = {{hostname}}:{{port}}
+@baseURL = http://{{host}}/api
+
+### User Register
+POST {{baseURL}}/users/register HTTP/1.1
+
+{
+    "email": "",
+    "password": ""
+}
+
+### User Login
+POST {{baseURL}}/users/login HTTP/1.1
+
+{
+    "email": "",
+    "password": ""
+}
+

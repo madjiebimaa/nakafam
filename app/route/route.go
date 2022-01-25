@@ -46,21 +46,21 @@ func (ro *Routes) Init(r *gin.Engine) {
 	userMid := _userMid.NewUserMiddleware()
 
 	auth := api.Group("", userMid.IsAuth)
-	usersStaff := auth.Group("", userMid.IsStaff)
+	users := auth.Group("")
 	{
-		usersStaff.GET("/users/upgrade-role", ro.userHttpDeliver.UpgradeRole)
-		usersStaff.PATCH("/users/upgrade-role/:token", ro.userHttpDeliver.ToLeaderRole)
-		usersStaff.GET("/users/me", ro.userHttpDeliver.Me)
-		usersStaff.POST("/users/logout", ro.userHttpDeliver.Logout)
-		usersStaff.POST("/users/nakamas", ro.userHttpDeliver.CreateNakama)
+		users.GET("/users/upgrade-role", ro.userHttpDeliver.UpgradeRole)
+		users.PATCH("/users/upgrade-role/:token", ro.userHttpDeliver.ToLeaderRole)
+		users.GET("/users/me", ro.userHttpDeliver.Me)
+		users.POST("/users/logout", ro.userHttpDeliver.Logout)
+		users.POST("/users/nakamas", ro.userHttpDeliver.CreateNakama)
 	}
 
-	nakamasStaff := auth.Group("", userMid.IsStaff)
+	nakamas := auth.Group("")
 	{
-		nakamasStaff.GET("/nakamas/:nakama_id", ro.nakamaHttpDelivery.GetByID)
-		nakamasStaff.PATCH("/nakamas/:nakama_id", ro.nakamaHttpDelivery.Update)
-		nakamasStaff.DELETE("/nakamas/:nakama_id", ro.nakamaHttpDelivery.Delete)
-		nakamasStaff.GET("/nakamas", ro.nakamaHttpDelivery.GetAll)
+		nakamas.GET("/nakamas/:nakama_id", ro.nakamaHttpDelivery.GetByID)
+		nakamas.PATCH("/nakamas/:nakama_id", ro.nakamaHttpDelivery.Update)
+		nakamas.DELETE("/nakamas/:nakama_id", ro.nakamaHttpDelivery.Delete)
+		nakamas.GET("/nakamas", ro.nakamaHttpDelivery.GetAll)
 	}
 
 	nakamasLeader := auth.Group("", userMid.IsLeader)
@@ -70,10 +70,10 @@ func (ro *Routes) Init(r *gin.Engine) {
 		nakamasLeader.PATCH("/nakamas/families", ro.nakamaHttpDelivery.GetAll)
 	}
 
-	familiesStaff := auth.Group("", userMid.IsStaff)
+	families := auth.Group("")
 	{
 		// TODO: not implemented yet
-		familiesStaff.GET("/families/:family_id", ro.familyHttpDelivery.GetByID)
+		families.GET("/families/:family_id", ro.familyHttpDelivery.GetByID)
 	}
 
 	familiesLeader := auth.Group("", userMid.IsLeader)

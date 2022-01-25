@@ -1,0 +1,52 @@
+@hostname = localhost
+@port = 3000
+@host = {{hostname}}:{{port}}
+@baseURL = http://{{host}}/api
+@session_token = 
+
+### Get By ID
+GET {{baseURL}}/nakamas/:nakama_id HTTP/1.1
+
+### Update Data
+PATCH {{baseURL}}/nakamas/:nakama_id HTTP/1.1
+
+{
+    "family_id": "",
+    "name": "",
+    "username": "",
+    "profile_image": "",
+    "description": "",
+    "social_media": {
+        "blogs": "",
+        "portfolio": "",
+        "email": "",
+        "github": "",
+        "linkedin": "",
+        "twitter": "",
+        "discord": "",
+        "youtube": "",
+        "instagram": ""
+    }
+}
+
+### Delete By ID
+DELETE  {{baseURL}}/nakamas/:nakama_id HTTP/1.1
+
+### Get All
+GET {{baseURL}}/nakamas HTTP/1.1
+
+############# LEADER #############
+
+### Create Family
+POST {{baseURL}}/nakamas/families HTTP/1.1
+
+{
+
+}
+
+### Update Family
+PATCH  {{baseURL}}/nakamas/families HTTP/1.1
+
+{
+
+}
