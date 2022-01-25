@@ -32,6 +32,7 @@ func NewNakamaUseCase(
 	}
 }
 
+// TODO: doubtful = domain that responsible for this action and what can be updated and how to do it with Mongo
 func (n *nakamaUseCase) Update(c context.Context, req *requests.NakamaUpdate) error {
 	ctx, cancel := context.WithTimeout(c, n.contextTimeout)
 	defer cancel()

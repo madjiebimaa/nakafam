@@ -31,6 +31,7 @@ func NewFamilyUseCase(
 	}
 }
 
+// TODO: doubtful = domain that responsible for this action
 func (f *familyUseCase) Create(c context.Context, req *requests.FamilyCreate) error {
 	ctx, cancel := context.WithTimeout(c, f.contextTimeout)
 	defer cancel()
@@ -66,6 +67,7 @@ func (f *familyUseCase) Create(c context.Context, req *requests.FamilyCreate) er
 	return nil
 }
 
+// TODO: doubtful = what can be updated and how to do it with Mongo
 func (f *familyUseCase) Update(c context.Context, req *requests.FamilyUpdate) error {
 	ctx, cancel := context.WithTimeout(c, f.contextTimeout)
 	defer cancel()

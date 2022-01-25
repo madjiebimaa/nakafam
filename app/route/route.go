@@ -57,9 +57,9 @@ func (ro *Routes) Init(r *gin.Engine) {
 
 	nakamas := auth.Group("")
 	{
-		nakamas.GET("/nakamas/:nakama_id", ro.nakamaHttpDelivery.GetByID)
-		nakamas.PATCH("/nakamas/:nakama_id", ro.nakamaHttpDelivery.Update)
-		nakamas.DELETE("/nakamas/:nakama_id", ro.nakamaHttpDelivery.Delete)
+		nakamas.GET("/nakamas/:nakamaID", ro.nakamaHttpDelivery.GetByID)
+		nakamas.PATCH("/nakamas/:nakamaID", ro.nakamaHttpDelivery.Update)
+		nakamas.DELETE("/nakamas/:nakamaID", ro.nakamaHttpDelivery.Delete)
 		nakamas.GET("/nakamas", ro.nakamaHttpDelivery.GetAll)
 	}
 
@@ -73,12 +73,12 @@ func (ro *Routes) Init(r *gin.Engine) {
 	families := auth.Group("")
 	{
 		// TODO: not implemented yet
-		families.GET("/families/:family_id", ro.familyHttpDelivery.GetByID)
+		families.GET("/families/:familyID", ro.familyHttpDelivery.GetByID)
 	}
 
 	familiesLeader := auth.Group("", userMid.IsLeader)
 	{
 		// TODO: not implemented yet
-		familiesLeader.DELETE("/families/:family_id", ro.familyHttpDelivery.GetByID)
+		familiesLeader.DELETE("/families/:familyID", ro.familyHttpDelivery.GetByID)
 	}
 }
