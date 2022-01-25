@@ -32,6 +32,10 @@ func NewNakamaUseCase(
 	}
 }
 
+func (n *nakamaUseCase) Create(c context.Context, req *requests.NakamaCreate) error {
+	return nil
+}
+
 // TODO: doubtful = domain that responsible for this action and what can be updated and how to do it with Mongo
 func (n *nakamaUseCase) Update(c context.Context, req *requests.NakamaUpdate) error {
 	ctx, cancel := context.WithTimeout(c, n.contextTimeout)
@@ -40,7 +44,7 @@ func (n *nakamaUseCase) Update(c context.Context, req *requests.NakamaUpdate) er
 	now := time.Now()
 	nakama := domain.Nakama{
 		ID:           req.NakamaID,
-		FamilyID:     req.FamilyID,
+		FamilyID:     primitive.NilObjectID,
 		Name:         req.Name,
 		UserName:     req.UserName,
 		ProfileImage: req.ProfileImage,

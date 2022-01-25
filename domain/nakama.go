@@ -48,6 +48,7 @@ type NakamaRepository interface {
 }
 
 type NakamaUseCase interface {
+	Create(c context.Context, req *_nakamaReq.NakamaCreate) error
 	Update(c context.Context, req *_nakamaReq.NakamaUpdate) error
 	Delete(c context.Context, id primitive.ObjectID) error
 	GetByID(c context.Context, id primitive.ObjectID) (_nakamaRes.NakamaBase, error)

@@ -18,13 +18,34 @@ func NewNakamaDelivery(nakamaUCase domain.NakamaUseCase) *NakamaDelivery {
 	return &NakamaDelivery{nakamaUCase}
 }
 
+func (n *NakamaDelivery) Create(c *gin.Context) {
+	var req requests.NakamaCreate
+	if err := c.ShouldBindJSON(&req); err != nil {
+		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
+	}
+
+	val, _ := c.Get("userID")
+	if val == nil {
+		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
+	}
+
+	userID := val.(primitive.ObjectID)
+	req.UserID = userID
+	ctx := c.Request.Context()
+	if err := n.nakamaUCase.Create(ctx, &req); err != nil {
+		helpers.FailResponse(c, helpers.GetStatusCode(err), "service", err)
+	}
+
+	helpers.SuccessResponse(c, http.StatusCreated, nil)
+}
+
 func (n *NakamaDelivery) Update(c *gin.Context) {
 	var req requests.NakamaUpdate
 	if err := c.ShouldBindJSON(&req); err != nil {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
 
-	id := c.Param("nakama_id")
+	id := c.Param("nakamaID")
 	if id == "" {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
@@ -44,7 +65,7 @@ func (n *NakamaDelivery) Update(c *gin.Context) {
 }
 
 func (n *NakamaDelivery) Delete(c *gin.Context) {
-	id := c.Param("nakama_id")
+	id := c.Param("nakamaID")
 	if id == "" {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
@@ -63,7 +84,7 @@ func (n *NakamaDelivery) Delete(c *gin.Context) {
 }
 
 func (n *NakamaDelivery) GetByID(c *gin.Context) {
-	id := c.Param("nakama_id")
+	id := c.Param("nakamaID")
 	if id == "" {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
@@ -98,12 +119,21 @@ func (n *NakamaDelivery) RegisterToFamily(c *gin.Context) {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
 
-	id := c.Param("family_id")
-	if id == "" {
+	nID := c.Param("nakamaID")
+	if nID == "" {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
+	nakamaID, err := primitive.ObjectIDFromHex(nID)
+	if err != nil {
+		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
+	}
+	req.NakamaID = nakamaID
 
-	familyID, err := primitive.ObjectIDFromHex(id)
+	fID := c.Param("familyID")
+	if fID == "" {
+		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
+	}
+	familyID, err := primitive.ObjectIDFromHex(fID)
 	if err != nil {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
