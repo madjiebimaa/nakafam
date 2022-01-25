@@ -98,16 +98,3 @@ func (u *UserUCase) Me(ctx context.Context, id primitive.ObjectID) (_userRes.Use
 
 	return r0, r1
 }
-
-func (u *UserUCase) CreateNakama(ctx context.Context, req *_userReq.UserCreateNakama) error {
-	ret := u.Called(ctx, req)
-
-	var r0 error
-	if ref, ok := ret.Get(0).(func(context.Context, *_userReq.UserCreateNakama) error); ok {
-		r0 = ref(ctx, req)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}

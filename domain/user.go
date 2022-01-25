@@ -28,8 +28,7 @@ type UserRepository interface {
 type UserUseCase interface {
 	Register(c context.Context, req *_userReq.UserRegisterOrLogin) error
 	Login(c context.Context, req *_userReq.UserRegisterOrLogin) (_userRes.UserBase, error)
-	UpgradeRole(c context.Context, id primitive.ObjectID) (string, error)
-	ToLeaderRole(c context.Context, token string) error
+	UpgradeRole(c context.Context, id primitive.ObjectID) (_userRes.UserUpgradeRole, error)
+	ToLeaderRole(c context.Context, req *_userReq.UserToLeaderRole) error
 	Me(c context.Context, id primitive.ObjectID) (_userRes.UserBase, error)
-	CreateNakama(c context.Context, req *_userReq.UserCreateNakama) error
 }

@@ -72,8 +72,8 @@ func main() {
 	familyRepo := _familyRepo.NewMongoFamilyRepository(collFamily)
 	tokenRepo := _tokenRepo.NewRedisTokenRepository(rdb)
 
-	userUCase := _userUCase.NewUserUseCase(userRepo, nakamaRepo, tokenRepo, timeoutContext)
-	nakamaUCase := _nakamaUCase.NewNakamaUseCase(nakamaRepo, familyRepo, timeoutContext)
+	userUCase := _userUCase.NewUserUseCase(userRepo, tokenRepo, timeoutContext)
+	nakamaUCase := _nakamaUCase.NewNakamaUseCase(nakamaRepo, userRepo, familyRepo, timeoutContext)
 	familyUCase := _familyUCase.NewFamilyUseCase(familyRepo, nakamaRepo, timeoutContext)
 
 	userHttpDelivery := _userHttpDelivery.NewUserHandler(userUCase)

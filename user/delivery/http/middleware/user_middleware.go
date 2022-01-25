@@ -18,25 +18,31 @@ func NewUserMiddleware() *userMiddleware {
 
 func (u *userMiddleware) IsAuth(c *gin.Context) {
 	sess := sessions.Default(c)
-	sessionID := sess.Get("user_id")
-	if sessionID == nil {
+	uID := sess.Get("userID")
+	if uID == nil {
 		helpers.FailResponse(c, http.StatusUnauthorized, "session", domain.ErrUnAuthorized)
 	}
+	userID := uID.(primitive.ObjectID)
 
-	userID := sessionID.(primitive.ObjectID)
-	c.Set("user_id", userID)
+	uRole := sess.Get("userRole")
+	if uRole == nil {
+		helpers.FailResponse(c, http.StatusUnauthorized, "session", domain.ErrUnAuthorized)
+	}
+	userRole := uRole.(string)
+
+	c.Set("userID", userID)
+	c.Set("userRole", userRole)
 	c.Next()
 }
 
 func (u *userMiddleware) IsLeader(c *gin.Context) {
-	sess := sessions.Default(c)
-	sessionID := sess.Get("user_role")
-	if sessionID == nil {
+	uRole, _ := c.Get("userRole")
+	if uRole == nil {
 		helpers.FailResponse(c, http.StatusUnauthorized, "session", domain.ErrUnAuthorized)
 	}
 
-	role := sessionID.(string)
-	if role != "leader" {
+	userRole := uRole.(string)
+	if userRole != "leader" {
 		helpers.FailResponse(c, http.StatusUnauthorized, "session", domain.ErrUnAuthorized)
 	}
 

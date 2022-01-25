@@ -69,41 +69,6 @@ func (m *mongoNakamaRepository) GetByID(ctx context.Context, id primitive.Object
 	return nakama, nil
 }
 
-func (m *mongoNakamaRepository) GetByUserID(ctx context.Context, userID primitive.ObjectID) (domain.Nakama, error) {
-	var nakama domain.Nakama
-	filter := bson.D{{Key: "user_id", Value: userID}}
-	if err := m.coll.FindOne(ctx, filter).Decode(&nakama); err != nil {
-		log.Fatal(err)
-		return domain.Nakama{}, domain.ErrInternalServerError
-	}
-
-	return nakama, nil
-}
-
-func (m *mongoNakamaRepository) GetByFamilyID(ctx context.Context, familyID primitive.ObjectID) ([]domain.Nakama, error) {
-	filter := bson.D{{Key: "family_id", Value: familyID}}
-	opts := options.Find().SetSort(bson.D{{Key: "name", Value: -1}})
-	cur, err := m.coll.Find(ctx, filter, opts)
-	if err != nil {
-		log.Fatal(err)
-		return nil, domain.ErrInternalServerError
-	}
-	defer cur.Close(ctx)
-
-	var nakamas []domain.Nakama
-	if err := cur.All(ctx, &nakamas); err != nil {
-		log.Fatal(err)
-		return nil, domain.ErrInternalServerError
-	}
-
-	if cur.Err() != nil {
-		log.Fatal(cur.Err())
-		return nil, domain.ErrInternalServerError
-	}
-
-	return nakamas, nil
-}
-
 func (m *mongoNakamaRepository) GetAll(ctx context.Context) ([]domain.Nakama, error) {
 	opts := options.Find().SetSort(bson.D{{Key: "name", Value: -1}})
 	cur, err := m.coll.Find(ctx, bson.D{{}}, opts)

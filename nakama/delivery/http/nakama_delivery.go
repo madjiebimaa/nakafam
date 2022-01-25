@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/madjiebimaa/nakafam/domain"
 	"github.com/madjiebimaa/nakafam/helpers"
-	"github.com/madjiebimaa/nakafam/nakama/delivery/http/requests"
+	_nakamaReq "github.com/madjiebimaa/nakafam/nakama/delivery/http/requests"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -19,7 +19,7 @@ func NewNakamaDelivery(nakamaUCase domain.NakamaUseCase) *NakamaDelivery {
 }
 
 func (n *NakamaDelivery) Create(c *gin.Context) {
-	var req requests.NakamaCreate
+	var req _nakamaReq.NakamaCreate
 	if err := c.ShouldBindJSON(&req); err != nil {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
@@ -40,7 +40,7 @@ func (n *NakamaDelivery) Create(c *gin.Context) {
 }
 
 func (n *NakamaDelivery) Update(c *gin.Context) {
-	var req requests.NakamaUpdate
+	var req _nakamaReq.NakamaUpdate
 	if err := c.ShouldBindJSON(&req); err != nil {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
@@ -103,6 +103,21 @@ func (n *NakamaDelivery) GetByID(c *gin.Context) {
 	helpers.SuccessResponse(c, http.StatusOK, res)
 }
 
+func (n *NakamaDelivery) GetByName(c *gin.Context) {
+	name := c.Query("name")
+	if name == "" {
+		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
+	}
+
+	ctx := c.Request.Context()
+	res, err := n.nakamaUCase.GetByName(ctx, name)
+	if err != nil {
+		helpers.FailResponse(c, helpers.GetStatusCode(err), "service", err)
+	}
+
+	helpers.SuccessResponse(c, http.StatusOK, res)
+}
+
 func (n *NakamaDelivery) GetAll(c *gin.Context) {
 	ctx := c.Request.Context()
 	res, err := n.nakamaUCase.GetAll(ctx)
@@ -114,7 +129,7 @@ func (n *NakamaDelivery) GetAll(c *gin.Context) {
 }
 
 func (n *NakamaDelivery) RegisterToFamily(c *gin.Context) {
-	var req requests.NakamaRegisterToFamily
+	var req _nakamaReq.NakamaRegisterToFamily
 	if err := c.ShouldBindJSON(&req); err != nil {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}

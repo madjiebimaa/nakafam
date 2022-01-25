@@ -41,6 +41,7 @@ func (ro *Routes) Init(r *gin.Engine) {
 	{
 		api.POST("/users/register", ro.userHttpDeliver.Register)
 		api.POST("/users/login", ro.userHttpDeliver.Login)
+		api.PATCH("/users/upgrade-role/:token", ro.userHttpDeliver.ToLeaderRole)
 	}
 
 	userMid := _userMid.NewUserMiddleware()
@@ -49,10 +50,8 @@ func (ro *Routes) Init(r *gin.Engine) {
 	users := auth.Group("")
 	{
 		users.GET("/users/upgrade-role", ro.userHttpDeliver.UpgradeRole)
-		users.PATCH("/users/upgrade-role/:token", ro.userHttpDeliver.ToLeaderRole)
 		users.GET("/users/me", ro.userHttpDeliver.Me)
 		users.POST("/users/logout", ro.userHttpDeliver.Logout)
-		users.POST("/users/nakamas", ro.userHttpDeliver.CreateNakama)
 	}
 
 	nakamas := auth.Group("")

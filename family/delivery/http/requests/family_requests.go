@@ -12,8 +12,7 @@ type FamilyCreate struct {
 }
 
 type FamilyUpdate struct {
-	ID          primitive.ObjectID `json:"id"`
+	FamilyID    primitive.ObjectID `json:"family_id"`
 	Name        string             `json:"name"`
-	Password    string             `json:"password"`
 	FamilyImage string             `json:"family_image"`
 }

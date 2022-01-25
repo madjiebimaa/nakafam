@@ -40,8 +40,6 @@ type NakamaRepository interface {
 	Update(ctx context.Context, nakama *Nakama) error
 	Delete(ctx context.Context, id primitive.ObjectID) error
 	GetByID(ctx context.Context, id primitive.ObjectID) (Nakama, error)
-	GetByUserID(ctx context.Context, userID primitive.ObjectID) (Nakama, error)
-	GetByFamilyID(ctx context.Context, familyID primitive.ObjectID) ([]Nakama, error)
 	GetAll(ctx context.Context) ([]Nakama, error)
 	GetByName(ctx context.Context, name string) (Nakama, error)
 	RegisterToFamily(ctx context.Context, id primitive.ObjectID, familyID primitive.ObjectID) error
@@ -52,7 +50,7 @@ type NakamaUseCase interface {
 	Update(c context.Context, req *_nakamaReq.NakamaUpdate) error
 	Delete(c context.Context, id primitive.ObjectID) error
 	GetByID(c context.Context, id primitive.ObjectID) (_nakamaRes.NakamaBase, error)
-	GetByName(c context.Context, name string) (_nakamaRes.NakamaBase, error)
 	GetAll(c context.Context) ([]_nakamaRes.NakamaBase, error)
+	GetByName(c context.Context, name string) (_nakamaRes.NakamaBase, error)
 	RegisterToFamily(c context.Context, req *_nakamaReq.NakamaRegisterToFamily) error
 }

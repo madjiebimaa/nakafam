@@ -11,34 +11,31 @@ import (
 	"github.com/madjiebimaa/nakafam/constant"
 	"github.com/madjiebimaa/nakafam/domain"
 	"github.com/madjiebimaa/nakafam/helpers"
-	"github.com/madjiebimaa/nakafam/user/delivery/http/requests"
-	"github.com/madjiebimaa/nakafam/user/delivery/http/responses"
+	_userReq "github.com/madjiebimaa/nakafam/user/delivery/http/requests"
+	_userRes "github.com/madjiebimaa/nakafam/user/delivery/http/responses"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type userUseCase struct {
 	userRepo       domain.UserRepository
-	nakamaRepo     domain.NakamaRepository
 	tokenRepo      domain.TokenRepository
 	contextTimeout time.Duration
 }
 
 func NewUserUseCase(
 	userRepo domain.UserRepository,
-	nakamaRepo domain.NakamaRepository,
 	tokenRepo domain.TokenRepository,
 	contextTimeout time.Duration,
 ) domain.UserUseCase {
 	return &userUseCase{
 		userRepo,
-		nakamaRepo,
 		tokenRepo,
 		contextTimeout,
 	}
 }
 
-func (u *userUseCase) Register(c context.Context, req *requests.UserRegisterOrLogin) error {
+func (u *userUseCase) Register(c context.Context, req *_userReq.UserRegisterOrLogin) error {
 	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
 	defer cancel()
 
@@ -74,55 +71,58 @@ func (u *userUseCase) Register(c context.Context, req *requests.UserRegisterOrLo
 	return nil
 }
 
-func (u *userUseCase) Login(c context.Context, req *requests.UserRegisterOrLogin) (responses.UserBase, error) {
+func (u *userUseCase) Login(c context.Context, req *_userReq.UserRegisterOrLogin) (_userRes.UserBase, error) {
 	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
 	defer cancel()
 
 	user, err := u.userRepo.GetByEmail(ctx, req.Email)
 	if err != nil {
-		return responses.UserBase{}, err
+		return _userRes.UserBase{}, err
 	}
 
 	if user.ID == primitive.NilObjectID {
-		return responses.UserBase{}, domain.ErrNotFound
+		return _userRes.UserBase{}, domain.ErrNotFound
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
-		return responses.UserBase{}, domain.ErrUnAuthorized
+		return _userRes.UserBase{}, domain.ErrUnAuthorized
 	}
 
 	res := helpers.ToUserBase(&user)
 	return res, nil
 }
 
-func (u *userUseCase) UpgradeRole(c context.Context, id primitive.ObjectID) (string, error) {
+func (u *userUseCase) UpgradeRole(c context.Context, id primitive.ObjectID) (_userRes.UserUpgradeRole, error) {
 	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
 	defer cancel()
 
 	user, err := u.userRepo.GetByID(ctx, id)
 	if err != nil {
-		return "", err
+		return _userRes.UserUpgradeRole{}, err
 	}
 
 	if user.ID == primitive.NilObjectID {
-		return "", domain.ErrNotFound
+		return _userRes.UserUpgradeRole{}, domain.ErrNotFound
 	}
 
 	token := uuid.NewString()
 	key := constant.TOKEN_REGISTER_LEADER_PREFIX + token
 	if err := u.tokenRepo.Set(ctx, key, user.ID, 3*24*time.Hour); err != nil {
-		return "", err
+		return _userRes.UserUpgradeRole{}, err
 	}
 
 	url := fmt.Sprintf("http://localhost:3000/api/users/upgrade-role/%s", token)
-	return url, nil
+	res := _userRes.UserUpgradeRole{
+		URL: url,
+	}
+	return res, nil
 }
 
-func (u *userUseCase) ToLeaderRole(c context.Context, token string) error {
+func (u *userUseCase) ToLeaderRole(c context.Context, req *_userReq.UserToLeaderRole) error {
 	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
 	defer cancel()
 
-	key := constant.TOKEN_REGISTER_LEADER_PREFIX + token
+	key := constant.TOKEN_REGISTER_LEADER_PREFIX + req.Token
 	val, err := u.tokenRepo.Get(ctx, key)
 	if err == redis.Nil {
 		return domain.ErrNotFound
@@ -146,6 +146,10 @@ func (u *userUseCase) ToLeaderRole(c context.Context, token string) error {
 		return domain.ErrNotFound
 	}
 
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
+		return domain.ErrUnAuthorized
+	}
+
 	if err := u.userRepo.ToLeaderRole(ctx, user.ID); err != nil {
 		return err
 	}
@@ -153,53 +157,19 @@ func (u *userUseCase) ToLeaderRole(c context.Context, token string) error {
 	return nil
 }
 
-func (u *userUseCase) Me(c context.Context, id primitive.ObjectID) (responses.UserBase, error) {
+func (u *userUseCase) Me(c context.Context, id primitive.ObjectID) (_userRes.UserBase, error) {
 	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
 	defer cancel()
 
 	user, err := u.userRepo.GetByID(ctx, id)
 	if err != nil {
-		return responses.UserBase{}, err
+		return _userRes.UserBase{}, err
 	}
 
 	if user.ID == primitive.NilObjectID {
-		return responses.UserBase{}, domain.ErrNotFound
+		return _userRes.UserBase{}, domain.ErrNotFound
 	}
 
 	res := helpers.ToUserBase(&user)
 	return res, nil
-}
-
-func (u *userUseCase) CreateNakama(c context.Context, req *requests.UserCreateNakama) error {
-	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
-	defer cancel()
-
-	user, err := u.userRepo.GetByID(ctx, req.UserID)
-	if err != nil {
-		return err
-	}
-
-	if user.ID == primitive.NilObjectID {
-		return domain.ErrNotFound
-	}
-
-	now := time.Now()
-	nakama := domain.Nakama{
-		ID:           primitive.NewObjectID(),
-		UserID:       req.UserID,
-		FamilyID:     primitive.NilObjectID,
-		Name:         req.Name,
-		UserName:     req.UserName,
-		ProfileImage: req.ProfileImage,
-		Description:  req.Description,
-		SocialMedia:  (*domain.SocialMedia)(req.SocialMedia),
-		CreatedAt:    now,
-		UpdatedAt:    now,
-	}
-
-	if err := u.nakamaRepo.Create(ctx, &nakama); err != nil {
-		return err
-	}
-
-	return nil
 }

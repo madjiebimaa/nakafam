@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/madjiebimaa/nakafam/domain"
-	"github.com/madjiebimaa/nakafam/family/delivery/http/requests"
+	_familyReq "github.com/madjiebimaa/nakafam/family/delivery/http/requests"
 	"github.com/madjiebimaa/nakafam/helpers"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -19,11 +19,12 @@ func NewFamilyDelivery(familyUCase domain.FamilyUseCase) *FamilyDelivery {
 }
 
 func (f *FamilyDelivery) Create(c *gin.Context) {
-	var req requests.FamilyCreate
+	var req _familyReq.FamilyCreate
 	if err := c.ShouldBindJSON(&req); err != nil {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
 
+	// TODO: how to get this kinda things?
 	val, _ := c.Get("nakamaID")
 	if val == "" {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
@@ -40,7 +41,7 @@ func (f *FamilyDelivery) Create(c *gin.Context) {
 }
 
 func (f *FamilyDelivery) Update(c *gin.Context) {
-	var req requests.FamilyUpdate
+	var req _familyReq.FamilyUpdate
 	if err := c.ShouldBindJSON(&req); err != nil {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
@@ -55,7 +56,7 @@ func (f *FamilyDelivery) Update(c *gin.Context) {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
 
-	req.ID = familyID
+	req.FamilyID = familyID
 	ctx := c.Request.Context()
 	if err := f.familyUCase.Update(ctx, &req); err != nil {
 		helpers.FailResponse(c, helpers.GetStatusCode(err), "service", err)
