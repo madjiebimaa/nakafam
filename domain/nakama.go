@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/madjiebimaa/nakafam/nakama/delivery/http/requests"
-	"github.com/madjiebimaa/nakafam/nakama/delivery/http/responses"
+	_nakamaReq "github.com/madjiebimaa/nakafam/nakama/delivery/http/requests"
+	_nakamaRes "github.com/madjiebimaa/nakafam/nakama/delivery/http/responses"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -48,10 +48,10 @@ type NakamaRepository interface {
 }
 
 type NakamaUseCase interface {
-	Update(c context.Context, req *requests.NakamaUpdate) error
+	Update(c context.Context, req *_nakamaReq.NakamaUpdate) error
 	Delete(c context.Context, id primitive.ObjectID) error
-	GetByID(c context.Context, id primitive.ObjectID) (responses.NakamaBase, error)
-	GetByName(c context.Context, name string) (responses.NakamaBase, error)
-	GetAll(c context.Context) ([]responses.NakamaBase, error)
-	RegisterToFamily(c context.Context, req *requests.NakamaRegisterToFamily) error
+	GetByID(c context.Context, id primitive.ObjectID) (_nakamaRes.NakamaBase, error)
+	GetByName(c context.Context, name string) (_nakamaRes.NakamaBase, error)
+	GetAll(c context.Context) ([]_nakamaRes.NakamaBase, error)
+	RegisterToFamily(c context.Context, req *_nakamaReq.NakamaRegisterToFamily) error
 }

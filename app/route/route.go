@@ -40,7 +40,7 @@ func (ro *Routes) Init(r *gin.Engine) {
 	api.Use(cors.New(cor), logger, recovery)
 	{
 		api.POST("/users/register", ro.userHttpDeliver.Register)
-		api.GET("/users/login", ro.userHttpDeliver.Login)
+		api.POST("/users/login", ro.userHttpDeliver.Login)
 	}
 
 	userMid := _userMid.NewUserMiddleware()
@@ -50,7 +50,8 @@ func (ro *Routes) Init(r *gin.Engine) {
 	{
 		usersStaff.GET("/users/upgrade-role", ro.userHttpDeliver.UpgradeRole)
 		usersStaff.PATCH("/users/upgrade-role/:token", ro.userHttpDeliver.ToLeaderRole)
-		usersStaff.POST("/users/upgrade-role/:token", ro.userHttpDeliver.CreateNakama)
+		usersStaff.GET("/users/me", ro.userHttpDeliver.Me)
+		usersStaff.POST("/users/logout", ro.userHttpDeliver.Logout)
 		usersStaff.POST("/users/nakamas", ro.userHttpDeliver.CreateNakama)
 	}
 

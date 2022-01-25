@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/madjiebimaa/nakafam/user/delivery/http/requests"
-	"github.com/madjiebimaa/nakafam/user/delivery/http/responses"
+	_userReq "github.com/madjiebimaa/nakafam/user/delivery/http/requests"
+	_userRes "github.com/madjiebimaa/nakafam/user/delivery/http/responses"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -26,10 +26,10 @@ type UserRepository interface {
 }
 
 type UserUseCase interface {
-	Register(c context.Context, req *requests.UserRegisterOrLogin) error
-	Login(c context.Context, req *requests.UserRegisterOrLogin) (responses.UserBase, error)
+	Register(c context.Context, req *_userReq.UserRegisterOrLogin) error
+	Login(c context.Context, req *_userReq.UserRegisterOrLogin) (_userRes.UserBase, error)
 	UpgradeRole(c context.Context, id primitive.ObjectID) (string, error)
 	ToLeaderRole(c context.Context, token string) error
-	Me(c context.Context, id primitive.ObjectID) (responses.UserBase, error)
-	CreateNakama(c context.Context, req *requests.UserCreateNakama) error
+	Me(c context.Context, id primitive.ObjectID) (_userRes.UserBase, error)
+	CreateNakama(c context.Context, req *_userReq.UserCreateNakama) error
 }

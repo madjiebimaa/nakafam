@@ -53,6 +53,7 @@ func (u *UserHandler) Login(c *gin.Context) {
 	// similar in JWT that create access token
 	sess := sessions.Default(c)
 	sess.Set("user_id", user.ID)
+	sess.Set("user_role", user.Role)
 	if err := sess.Save(); err != nil {
 		helpers.FailResponse(c, http.StatusInternalServerError, "session", err)
 	}
@@ -62,6 +63,10 @@ func (u *UserHandler) Login(c *gin.Context) {
 
 func (u *UserHandler) UpgradeRole(c *gin.Context) {
 	id, _ := c.Get("user_id")
+	if id == nil {
+		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
+	}
+
 	userID := id.(primitive.ObjectID)
 	ctx := c.Request.Context()
 	res, err := u.userUCase.UpgradeRole(ctx, userID)
@@ -88,6 +93,10 @@ func (u *UserHandler) ToLeaderRole(c *gin.Context) {
 
 func (u *UserHandler) Me(c *gin.Context) {
 	id, _ := c.Get("user_id")
+	if id == nil {
+		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
+	}
+
 	userID := id.(primitive.ObjectID)
 	ctx := c.Request.Context()
 	user, err := u.userUCase.Me(ctx, userID)
@@ -115,6 +124,10 @@ func (u *UserHandler) CreateNakama(c *gin.Context) {
 	}
 
 	id, _ := c.Get("user_id")
+	if id == nil {
+		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
+	}
+
 	userID := id.(primitive.ObjectID)
 	req.UserID = userID
 	ctx := c.Request.Context()
