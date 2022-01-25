@@ -11,6 +11,7 @@ import (
 
 type Family struct {
 	ID          primitive.ObjectID `json:"id" bson:"_id"`
+	LeaderID    primitive.ObjectID `json:"leader_id" bson:"leader_id"`
 	Name        string             `json:"name" bson:"name"`
 	Password    string             `json:"password"`
 	FamilyImage string             `json:"family_image" bson:"family_image"`
@@ -24,15 +25,13 @@ type FamilyRepository interface {
 	Update(ctx context.Context, family *Family) error
 	Delete(ctx context.Context, id primitive.ObjectID) error
 	GetByID(ctx context.Context, id primitive.ObjectID) (Family, error)
-	GetByName(ctx context.Context, name string) (Family, error)
 	GetAll(ctx context.Context) ([]Family, error)
 }
 
 type FamilyUseCase interface {
 	Create(c context.Context, req *_familyReq.FamilyCreate) error
 	Update(c context.Context, req *_familyReq.FamilyUpdate) error
-	Delete(c context.Context, id primitive.ObjectID) error
+	Delete(c context.Context, req *_familyReq.FamilyDelete) error
 	GetByID(c context.Context, id primitive.ObjectID) (_familyRes.FamilyBase, error)
-	GetByName(c context.Context, name string) (_familyRes.FamilyBase, error)
 	GetAll(c context.Context) ([]_familyRes.FamilyBase, error)
 }

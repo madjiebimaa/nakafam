@@ -16,10 +16,16 @@ type NakamaCreate struct {
 
 type NakamaUpdate struct {
 	NakamaID     primitive.ObjectID          `json:"nakama_id"`
+	UserID       primitive.ObjectID          `json:"user_id"`
 	Name         string                      `json:"name"`
 	ProfileImage string                      `json:"profile_image"`
 	Description  string                      `json:"description"`
 	SocialMedia  *_nakamaRes.SocialMediaBase `json:"social_media"`
+}
+
+type NakamaDelete struct {
+	NakamaID primitive.ObjectID `json:"nakama_id"`
+	UserID   primitive.ObjectID `json:"user_id"`
 }
 
 type NakamaRegisterToFamily struct {

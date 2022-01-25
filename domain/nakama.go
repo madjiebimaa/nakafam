@@ -25,7 +25,6 @@ type SocialMedia struct {
 type Nakama struct {
 	ID           primitive.ObjectID `json:"id" bson:"_id"`
 	UserID       primitive.ObjectID `json:"user_id" bson:"user_id"`
-	FamilyID     primitive.ObjectID `json:"family_id" bson:"family_id"`
 	Name         string             `json:"name" bson:"name"`
 	UserName     string             `json:"username" bson:"username"`
 	ProfileImage string             `json:"profile_image" bson:"profile_image"`
@@ -41,16 +40,14 @@ type NakamaRepository interface {
 	Delete(ctx context.Context, id primitive.ObjectID) error
 	GetByID(ctx context.Context, id primitive.ObjectID) (Nakama, error)
 	GetAll(ctx context.Context) ([]Nakama, error)
-	GetByName(ctx context.Context, name string) (Nakama, error)
 	RegisterToFamily(ctx context.Context, id primitive.ObjectID, familyID primitive.ObjectID) error
 }
 
 type NakamaUseCase interface {
 	Create(c context.Context, req *_nakamaReq.NakamaCreate) error
 	Update(c context.Context, req *_nakamaReq.NakamaUpdate) error
-	Delete(c context.Context, id primitive.ObjectID) error
+	Delete(c context.Context, req *_nakamaReq.NakamaDelete) error
 	GetByID(c context.Context, id primitive.ObjectID) (_nakamaRes.NakamaBase, error)
 	GetAll(c context.Context) ([]_nakamaRes.NakamaBase, error)
-	GetByName(c context.Context, name string) (_nakamaRes.NakamaBase, error)
 	RegisterToFamily(c context.Context, req *_nakamaReq.NakamaRegisterToFamily) error
 }

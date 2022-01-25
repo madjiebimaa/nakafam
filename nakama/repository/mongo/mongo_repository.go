@@ -92,17 +92,6 @@ func (m *mongoNakamaRepository) GetAll(ctx context.Context) ([]domain.Nakama, er
 	return nakamas, nil
 }
 
-func (m *mongoNakamaRepository) GetByName(ctx context.Context, name string) (domain.Nakama, error) {
-	var nakama domain.Nakama
-	filter := bson.D{{Key: "name", Value: name}}
-	if err := m.coll.FindOne(ctx, filter).Decode(&nakama); err != nil {
-		log.Fatal(err)
-		return domain.Nakama{}, domain.ErrInternalServerError
-	}
-
-	return nakama, nil
-}
-
 func (m *mongoNakamaRepository) RegisterToFamily(ctx context.Context, id primitive.ObjectID, familyID primitive.ObjectID) error {
 	filter := bson.D{{Key: "_id", Value: id}}
 	updater := bson.D{

@@ -52,7 +52,6 @@ func (n *nakamaUseCase) Create(c context.Context, req *_nakamaReq.NakamaCreate) 
 	nakama := domain.Nakama{
 		ID:           primitive.NewObjectID(),
 		UserID:       user.ID,
-		FamilyID:     primitive.NilObjectID,
 		Name:         req.Name,
 		UserName:     req.UserName,
 		ProfileImage: req.ProfileImage,
@@ -98,6 +97,10 @@ func (n *nakamaUseCase) Update(c context.Context, req *_nakamaReq.NakamaUpdate) 
 		nakama.SocialMedia = (*domain.SocialMedia)(req.SocialMedia)
 	}
 
+	if err := helpers.IsAuthorOfNakama(req.UserID, &nakama); err != nil {
+		return err
+	}
+
 	if err := n.nakamaRepo.Update(ctx, &nakama); err != nil {
 		return err
 	}
@@ -105,11 +108,24 @@ func (n *nakamaUseCase) Update(c context.Context, req *_nakamaReq.NakamaUpdate) 
 	return nil
 }
 
-func (n *nakamaUseCase) Delete(c context.Context, id primitive.ObjectID) error {
+func (n *nakamaUseCase) Delete(c context.Context, req *_nakamaReq.NakamaDelete) error {
 	ctx, cancel := context.WithTimeout(c, n.contextTimeout)
 	defer cancel()
 
-	if err := n.nakamaRepo.Delete(ctx, id); err != nil {
+	nakama, err := n.nakamaRepo.GetByID(ctx, req.NakamaID)
+	if err != nil {
+		return err
+	}
+
+	if nakama.ID == primitive.NilObjectID {
+		return domain.ErrNotFound
+	}
+
+	if err := helpers.IsAuthorOfNakama(req.UserID, &nakama); err != nil {
+		return err
+	}
+
+	if err := n.nakamaRepo.Delete(ctx, req.NakamaID); err != nil {
 		return err
 	}
 
@@ -121,23 +137,6 @@ func (n *nakamaUseCase) GetByID(c context.Context, id primitive.ObjectID) (_naka
 	defer cancel()
 
 	nakama, err := n.nakamaRepo.GetByID(ctx, id)
-	if err != nil {
-		return _nakamaRes.NakamaBase{}, err
-	}
-
-	if nakama.ID == primitive.NilObjectID {
-		return _nakamaRes.NakamaBase{}, domain.ErrNotFound
-	}
-
-	res := helpers.ToNakamaBase(&nakama)
-	return res, nil
-}
-
-func (n *nakamaUseCase) GetByName(c context.Context, name string) (_nakamaRes.NakamaBase, error) {
-	ctx, cancel := context.WithTimeout(c, n.contextTimeout)
-	defer cancel()
-
-	nakama, err := n.nakamaRepo.GetByName(ctx, name)
 	if err != nil {
 		return _nakamaRes.NakamaBase{}, err
 	}

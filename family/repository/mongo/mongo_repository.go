@@ -66,17 +66,6 @@ func (m *mongoFamilyRepository) GetByID(ctx context.Context, id primitive.Object
 	return family, nil
 }
 
-func (m *mongoFamilyRepository) GetByName(ctx context.Context, name string) (domain.Family, error) {
-	var family domain.Family
-	filter := bson.D{{Key: "name", Value: name}}
-	if err := m.coll.FindOne(ctx, filter).Decode(&family); err != nil {
-		log.Fatal(err)
-		return domain.Family{}, domain.ErrInternalServerError
-	}
-
-	return family, nil
-}
-
 func (m *mongoFamilyRepository) GetAll(ctx context.Context) ([]domain.Family, error) {
 	filter := bson.D{{}}
 	cur, err := m.coll.Find(ctx, filter)

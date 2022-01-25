@@ -37,47 +37,42 @@ func (ro *Routes) Init(r *gin.Engine) {
 	logger := gin.Logger()
 	recovery := gin.Recovery()
 	api := r.Group("/api")
+
+	userMid := _userMid.NewUserMiddleware()
+
 	api.Use(cors.New(cor), logger, recovery)
 	{
 		api.POST("/users/register", ro.userHttpDeliver.Register)
 		api.POST("/users/login", ro.userHttpDeliver.Login)
 		api.PATCH("/users/upgrade-role/:token", ro.userHttpDeliver.ToLeaderRole)
-	}
 
-	userMid := _userMid.NewUserMiddleware()
+		api.GET("/nakamas/:nakamaID", ro.nakamaHttpDelivery.GetByID)
+		api.GET("/nakamas", ro.nakamaHttpDelivery.GetAll)
+
+		api.GET("/families/:familyID", ro.familyHttpDelivery.GetByID)
+		api.GET("/families", ro.familyHttpDelivery.GetAll)
+	}
 
 	auth := api.Group("", userMid.IsAuth)
 	users := auth.Group("")
 	{
+		users.POST("/users/logout", ro.userHttpDeliver.Logout)
 		users.GET("/users/upgrade-role", ro.userHttpDeliver.UpgradeRole)
 		users.GET("/users/me", ro.userHttpDeliver.Me)
-		users.POST("/users/logout", ro.userHttpDeliver.Logout)
 	}
 
 	nakamas := auth.Group("")
 	{
-		nakamas.GET("/nakamas/:nakamaID", ro.nakamaHttpDelivery.GetByID)
+		nakamas.POST("/nakamas", ro.nakamaHttpDelivery.Create)
 		nakamas.PATCH("/nakamas/:nakamaID", ro.nakamaHttpDelivery.Update)
 		nakamas.DELETE("/nakamas/:nakamaID", ro.nakamaHttpDelivery.Delete)
-		nakamas.GET("/nakamas", ro.nakamaHttpDelivery.GetAll)
-	}
-
-	nakamasLeader := auth.Group("", userMid.IsLeader)
-	{
-		// TODO: not implemented yet
-		nakamasLeader.POST("/nakamas/families", ro.nakamaHttpDelivery.GetAll)
-		nakamasLeader.PATCH("/nakamas/families", ro.nakamaHttpDelivery.GetAll)
-	}
-
-	families := auth.Group("")
-	{
-		// TODO: not implemented yet
-		families.GET("/families/:familyID", ro.familyHttpDelivery.GetByID)
+		nakamas.PATCH("/nakamas/:nakamaID/families/:familyID", ro.nakamaHttpDelivery.RegisterToFamily)
 	}
 
 	familiesLeader := auth.Group("", userMid.IsLeader)
 	{
-		// TODO: not implemented yet
-		familiesLeader.DELETE("/families/:familyID", ro.familyHttpDelivery.GetByID)
+		familiesLeader.POST("/families", ro.familyHttpDelivery.Create)
+		familiesLeader.PATCH("/families/:familyID", ro.familyHttpDelivery.Update)
+		familiesLeader.DELETE("/families/:familyID", ro.familyHttpDelivery.Delete)
 	}
 }

@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/madjiebimaa/nakafam/domain"
-	"github.com/madjiebimaa/nakafam/family/delivery/http/requests"
-	"github.com/madjiebimaa/nakafam/family/delivery/http/responses"
+	_familyReq "github.com/madjiebimaa/nakafam/family/delivery/http/requests"
+	_familyRes "github.com/madjiebimaa/nakafam/family/delivery/http/responses"
 	"github.com/madjiebimaa/nakafam/helpers"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
@@ -31,7 +31,7 @@ func NewFamilyUseCase(
 	}
 }
 
-func (f *familyUseCase) Create(c context.Context, req *requests.FamilyCreate) error {
+func (f *familyUseCase) Create(c context.Context, req *_familyReq.FamilyCreate) error {
 	ctx, cancel := context.WithTimeout(c, f.contextTimeout)
 	defer cancel()
 
@@ -53,6 +53,7 @@ func (f *familyUseCase) Create(c context.Context, req *requests.FamilyCreate) er
 	now := time.Now()
 	family := domain.Family{
 		ID:          primitive.NewObjectID(),
+		LeaderID:    nakama.ID,
 		Name:        req.Name,
 		Password:    string(hashedPass),
 		FamilyImage: req.FamilyImage,
@@ -68,7 +69,7 @@ func (f *familyUseCase) Create(c context.Context, req *requests.FamilyCreate) er
 	return nil
 }
 
-func (f *familyUseCase) Update(c context.Context, req *requests.FamilyUpdate) error {
+func (f *familyUseCase) Update(c context.Context, req *_familyReq.FamilyUpdate) error {
 	ctx, cancel := context.WithTimeout(c, f.contextTimeout)
 	defer cancel()
 
@@ -89,6 +90,10 @@ func (f *familyUseCase) Update(c context.Context, req *requests.FamilyUpdate) er
 		family.FamilyImage = req.FamilyImage
 	}
 
+	if err := helpers.IsLeaderOfFamily(req.NakamaID, &family); err != nil {
+		return err
+	}
+
 	family.UpdatedAt = time.Now()
 	if err := f.familyRepo.Update(ctx, &family); err != nil {
 		return err
@@ -97,11 +102,11 @@ func (f *familyUseCase) Update(c context.Context, req *requests.FamilyUpdate) er
 	return nil
 }
 
-func (f *familyUseCase) Delete(c context.Context, id primitive.ObjectID) error {
+func (f *familyUseCase) Delete(c context.Context, req *_familyReq.FamilyDelete) error {
 	ctx, cancel := context.WithTimeout(c, f.contextTimeout)
 	defer cancel()
 
-	family, err := f.familyRepo.GetByID(ctx, id)
+	family, err := f.familyRepo.GetByID(ctx, req.FamilyID)
 	if err != nil {
 		return nil
 	}
@@ -110,48 +115,35 @@ func (f *familyUseCase) Delete(c context.Context, id primitive.ObjectID) error {
 		return domain.ErrNotFound
 	}
 
-	if err := f.familyRepo.Delete(ctx, id); err != nil {
+	if err := helpers.IsLeaderOfFamily(req.NakamaID, &family); err != nil {
+		return err
+	}
+
+	if err := f.familyRepo.Delete(ctx, req.FamilyID); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (f *familyUseCase) GetByID(c context.Context, id primitive.ObjectID) (responses.FamilyBase, error) {
+func (f *familyUseCase) GetByID(c context.Context, id primitive.ObjectID) (_familyRes.FamilyBase, error) {
 	ctx, cancel := context.WithTimeout(c, f.contextTimeout)
 	defer cancel()
 
 	family, err := f.familyRepo.GetByID(ctx, id)
 	if err != nil {
-		return responses.FamilyBase{}, err
+		return _familyRes.FamilyBase{}, err
 	}
 
 	if family.ID == primitive.NilObjectID {
-		return responses.FamilyBase{}, domain.ErrNotFound
+		return _familyRes.FamilyBase{}, domain.ErrNotFound
 	}
 
 	res := helpers.ToFamilyBase(&family)
 	return res, nil
 }
 
-func (f *familyUseCase) GetByName(c context.Context, name string) (responses.FamilyBase, error) {
-	ctx, cancel := context.WithTimeout(c, f.contextTimeout)
-	defer cancel()
-
-	family, err := f.familyRepo.GetByName(ctx, name)
-	if err != nil {
-		return responses.FamilyBase{}, err
-	}
-
-	if family.ID == primitive.NilObjectID {
-		return responses.FamilyBase{}, domain.ErrNotFound
-	}
-
-	res := helpers.ToFamilyBase(&family)
-	return res, nil
-}
-
-func (f *familyUseCase) GetAll(c context.Context) ([]responses.FamilyBase, error) {
+func (f *familyUseCase) GetAll(c context.Context) ([]_familyRes.FamilyBase, error) {
 	ctx, cancel := context.WithTimeout(c, f.contextTimeout)
 	defer cancel()
 

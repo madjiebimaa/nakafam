@@ -56,6 +56,8 @@ func (f *FamilyDelivery) Update(c *gin.Context) {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
 
+	// TODO: how to get Nakama ID
+
 	req.FamilyID = familyID
 	ctx := c.Request.Context()
 	if err := f.familyUCase.Update(ctx, &req); err != nil {
@@ -76,8 +78,13 @@ func (f *FamilyDelivery) Delete(c *gin.Context) {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
 
+	// TODO: how to get Nakama ID
+	req := _familyReq.FamilyDelete{
+		FamilyID: familyID,
+	}
+
 	ctx := c.Request.Context()
-	if err := f.familyUCase.Delete(ctx, familyID); err != nil {
+	if err := f.familyUCase.Delete(ctx, &req); err != nil {
 		helpers.FailResponse(c, helpers.GetStatusCode(err), "service", err)
 	}
 
@@ -97,21 +104,6 @@ func (f *FamilyDelivery) GetByID(c *gin.Context) {
 
 	ctx := c.Request.Context()
 	res, err := f.familyUCase.GetByID(ctx, familyID)
-	if err != nil {
-		helpers.FailResponse(c, helpers.GetStatusCode(err), "service", err)
-	}
-
-	helpers.SuccessResponse(c, http.StatusOK, res)
-}
-
-func (f *FamilyDelivery) GetByName(c *gin.Context) {
-	name := c.Query("name")
-	if name == "" {
-		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
-	}
-
-	ctx := c.Request.Context()
-	res, err := f.familyUCase.GetByName(ctx, name)
 	if err != nil {
 		helpers.FailResponse(c, helpers.GetStatusCode(err), "service", err)
 	}

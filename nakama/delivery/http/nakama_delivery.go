@@ -75,8 +75,19 @@ func (n *NakamaDelivery) Delete(c *gin.Context) {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
 
+	uID, _ := c.Get("userID")
+	if uID == nil {
+		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
+	}
+
+	userID := uID.(primitive.ObjectID)
+	req := _nakamaReq.NakamaDelete{
+		NakamaID: nakamaID,
+		UserID:   userID,
+	}
+
 	ctx := c.Request.Context()
-	if err := n.nakamaUCase.Delete(ctx, nakamaID); err != nil {
+	if err := n.nakamaUCase.Delete(ctx, &req); err != nil {
 		helpers.FailResponse(c, helpers.GetStatusCode(err), "service", err)
 	}
 
@@ -96,21 +107,6 @@ func (n *NakamaDelivery) GetByID(c *gin.Context) {
 
 	ctx := c.Request.Context()
 	res, err := n.nakamaUCase.GetByID(ctx, nakamaID)
-	if err != nil {
-		helpers.FailResponse(c, helpers.GetStatusCode(err), "service", err)
-	}
-
-	helpers.SuccessResponse(c, http.StatusOK, res)
-}
-
-func (n *NakamaDelivery) GetByName(c *gin.Context) {
-	name := c.Query("name")
-	if name == "" {
-		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
-	}
-
-	ctx := c.Request.Context()
-	res, err := n.nakamaUCase.GetByName(ctx, name)
 	if err != nil {
 		helpers.FailResponse(c, helpers.GetStatusCode(err), "service", err)
 	}

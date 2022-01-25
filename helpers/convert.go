@@ -10,7 +10,6 @@ import (
 func ToNakamaBase(nakama *domain.Nakama) nakamaRes.NakamaBase {
 	return nakamaRes.NakamaBase{
 		ID:           nakama.ID,
-		FamilyID:     nakama.FamilyID,
 		Name:         nakama.Name,
 		UserName:     nakama.UserName,
 		ProfileImage: nakama.ProfileImage,
