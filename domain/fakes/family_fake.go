@@ -10,7 +10,7 @@ func FakeFamily() domain.Family {
 		ID:          familyID,
 		LeaderID:    nakamaID,
 		Name:        familyName,
-		Password:    password,
+		Password:    string(hashedPass),
 		FamilyImage: familyImage,
 		Nakamas:     []domain.Nakama{FakeNakama()},
 		CreatedAt:   createdAt,
