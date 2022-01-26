@@ -6,35 +6,19 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
-	"github.com/google/uuid"
 	"github.com/madjiebimaa/nakafam/constant"
 	"github.com/madjiebimaa/nakafam/domain"
+	"github.com/madjiebimaa/nakafam/domain/fakes"
 	"github.com/madjiebimaa/nakafam/domain/mocks"
-	"github.com/madjiebimaa/nakafam/user/delivery/http/requests"
 	"github.com/madjiebimaa/nakafam/user/usecase"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func TestRegister(t *testing.T) {
-	fakeReq := requests.UserRegisterOrLogin{
-		Email:    "testing@gmail.com",
-		Password: "testing",
-	}
-
-	now := time.Now()
-	hashedPass, err := bcrypt.GenerateFromPassword([]byte(fakeReq.Password), 12)
-	assert.NoError(t, err)
-	fakeUser := domain.User{
-		ID:        primitive.NewObjectID(),
-		Email:     fakeReq.Email,
-		Password:  string(hashedPass),
-		Role:      "user",
-		CreatedAt: now,
-		UpdatedAt: now,
-	}
+	fakeReq := fakes.FakeUserRegisterOrLoginRequest()
+	fakeUser := fakes.FakeUser()
 
 	userRepo := new(mocks.UserRepository)
 	tokenRepo := new(mocks.TokenRepository)
@@ -44,7 +28,7 @@ func TestRegister(t *testing.T) {
 		userRepo.On("GetByEmail", mock.Anything, fakeReq.Email).Return(domain.User{}, nil).Once()
 		userRepo.On("Register", mock.Anything, mock.AnythingOfType("*domain.User")).Return(nil).Once()
 
-		err = userUCase.Register(context.TODO(), &fakeReq)
+		err := userUCase.Register(context.TODO(), &fakeReq)
 		assert.NoError(t, err)
 		userRepo.AssertExpectations(t)
 		tokenRepo.AssertExpectations(t)
@@ -53,7 +37,7 @@ func TestRegister(t *testing.T) {
 	t.Run("fail check email in repository", func(t *testing.T) {
 		userRepo.On("GetByEmail", mock.Anything, fakeReq.Email).Return(domain.User{}, domain.ErrInternalServerError).Once()
 
-		err = userUCase.Register(context.TODO(), &fakeReq)
+		err := userUCase.Register(context.TODO(), &fakeReq)
 		assert.Error(t, err)
 		userRepo.AssertExpectations(t)
 		tokenRepo.AssertExpectations(t)
@@ -62,7 +46,7 @@ func TestRegister(t *testing.T) {
 	t.Run("fail email already exist", func(t *testing.T) {
 		userRepo.On("GetByEmail", mock.Anything, fakeReq.Email).Return(fakeUser, nil).Once()
 
-		err = userUCase.Register(context.TODO(), &fakeReq)
+		err := userUCase.Register(context.TODO(), &fakeReq)
 		assert.Error(t, err)
 		userRepo.AssertExpectations(t)
 		tokenRepo.AssertExpectations(t)
@@ -72,7 +56,7 @@ func TestRegister(t *testing.T) {
 		userRepo.On("GetByEmail", mock.Anything, fakeReq.Email).Return(domain.User{}, nil).Once()
 		userRepo.On("Register", mock.Anything, mock.AnythingOfType("*domain.User")).Return(domain.ErrInternalServerError).Once()
 
-		err = userUCase.Register(context.TODO(), &fakeReq)
+		err := userUCase.Register(context.TODO(), &fakeReq)
 		assert.Error(t, err)
 		userRepo.AssertExpectations(t)
 		tokenRepo.AssertExpectations(t)
@@ -81,22 +65,8 @@ func TestRegister(t *testing.T) {
 }
 
 func TestLogin(t *testing.T) {
-	fakeReq := requests.UserRegisterOrLogin{
-		Email:    "testing@gmail.com",
-		Password: "testing",
-	}
-
-	now := time.Now()
-	hashedPass, err := bcrypt.GenerateFromPassword([]byte(fakeReq.Password), 12)
-	assert.NoError(t, err)
-	fakeUser := domain.User{
-		ID:        primitive.NewObjectID(),
-		Email:     fakeReq.Email,
-		Password:  string(hashedPass),
-		Role:      "user",
-		CreatedAt: now,
-		UpdatedAt: now,
-	}
+	fakeReq := fakes.FakeUserRegisterOrLoginRequest()
+	fakeUser := fakes.FakeUser()
 
 	userRepo := new(mocks.UserRepository)
 	tokenRepo := new(mocks.TokenRepository)
@@ -145,19 +115,8 @@ func TestLogin(t *testing.T) {
 }
 
 func TestUpgradeRole(t *testing.T) {
-	id := primitive.NewObjectID()
-
-	now := time.Now()
-	hashedPass, err := bcrypt.GenerateFromPassword([]byte("testing"), 12)
-	assert.NoError(t, err)
-	fakeUser := domain.User{
-		ID:        primitive.NewObjectID(),
-		Email:     "testing@gmail.com",
-		Password:  string(hashedPass),
-		Role:      "user",
-		CreatedAt: now,
-		UpdatedAt: now,
-	}
+	fakeUser := fakes.FakeUser()
+	id := fakeUser.ID
 
 	userRepo := new(mocks.UserRepository)
 	tokenRepo := new(mocks.TokenRepository)
@@ -207,27 +166,13 @@ func TestUpgradeRole(t *testing.T) {
 }
 
 func TestToLeaderRole(t *testing.T) {
-	fakeReq := requests.UserToLeaderRole{
-		Token:    uuid.NewString(),
-		Password: "testing",
-	}
-
-	now := time.Now()
-	hashedPass, err := bcrypt.GenerateFromPassword([]byte(fakeReq.Password), 12)
-	assert.NoError(t, err)
-
 	val := "61f0ed7d6af9e743099437e5"
 	id, err := primitive.ObjectIDFromHex(val)
 	assert.NoError(t, err)
 
-	fakeUser := domain.User{
-		ID:        id,
-		Email:     "testing@gmail.com",
-		Password:  string(hashedPass),
-		Role:      "user",
-		CreatedAt: now,
-		UpdatedAt: now,
-	}
+	fakeReq := fakes.FakeUserToLeaderRoleRequest()
+	fakeUser := fakes.FakeUser()
+	fakeUser.ID = id
 
 	key := constant.TOKEN_REGISTER_LEADER_PREFIX + fakeReq.Token
 
@@ -306,19 +251,8 @@ func TestToLeaderRole(t *testing.T) {
 }
 
 func TestMe(t *testing.T) {
-	id := primitive.NewObjectID()
-
-	now := time.Now()
-	hashedPass, err := bcrypt.GenerateFromPassword([]byte("testing"), 12)
-	assert.NoError(t, err)
-	fakeUser := domain.User{
-		ID:        primitive.NewObjectID(),
-		Email:     "testing@gmail.com",
-		Password:  string(hashedPass),
-		Role:      "user",
-		CreatedAt: now,
-		UpdatedAt: now,
-	}
+	fakeUser := fakes.FakeUser()
+	id := fakeUser.ID
 
 	userRepo := new(mocks.UserRepository)
 	tokenRepo := new(mocks.TokenRepository)
