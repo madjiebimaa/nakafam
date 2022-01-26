@@ -71,26 +71,6 @@ func (f *FamilyRepository) GetByID(ctx context.Context, id primitive.ObjectID) (
 	return r0, r1
 }
 
-func (f *FamilyRepository) GetByName(ctx context.Context, name string) (domain.Family, error) {
-	ret := f.Called(ctx, name)
-
-	var r0 domain.Family
-	if ref, ok := ret.Get(0).(func(context.Context, string) domain.Family); ok {
-		r0 = ref(ctx, name)
-	} else {
-		r0 = ret.Get(0).(domain.Family)
-	}
-
-	var r1 error
-	if ref, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = ref(ctx, name)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 func (f *FamilyRepository) GetAll(ctx context.Context) ([]domain.Family, error) {
 	ret := f.Called(ctx)
 

@@ -72,26 +72,6 @@ func (f *FamilyUCase) GetByID(ctx context.Context, id primitive.ObjectID) (_fami
 	return r0, r1
 }
 
-func (f *FamilyUCase) GetByName(ctx context.Context, name string) (_familyRes.FamilyBase, error) {
-	ret := f.Called(ctx, name)
-
-	var r0 _familyRes.FamilyBase
-	if ref, ok := ret.Get(0).(func(context.Context, string) _familyRes.FamilyBase); ok {
-		r0 = ref(ctx, name)
-	} else {
-		r0 = ret.Get(0).(_familyRes.FamilyBase)
-	}
-
-	var r1 error
-	if ref, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = ref(ctx, name)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 func (f *FamilyUCase) GetAll(ctx context.Context) ([]_familyRes.FamilyBase, error) {
 	ret := f.Called(ctx)
 
