@@ -75,7 +75,7 @@ func (f *familyUseCase) Update(c context.Context, req *_familyReq.FamilyUpdate) 
 
 	family, err := f.familyRepo.GetByID(ctx, req.FamilyID)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	if family.ID == primitive.NilObjectID {
@@ -108,7 +108,7 @@ func (f *familyUseCase) Delete(c context.Context, req *_familyReq.FamilyDelete) 
 
 	family, err := f.familyRepo.GetByID(ctx, req.FamilyID)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	if family.ID == primitive.NilObjectID {
@@ -119,7 +119,7 @@ func (f *familyUseCase) Delete(c context.Context, req *_familyReq.FamilyDelete) 
 		return err
 	}
 
-	if err := f.familyRepo.Delete(ctx, req.FamilyID); err != nil {
+	if err := f.familyRepo.Delete(ctx, family.ID); err != nil {
 		return err
 	}
 
@@ -152,7 +152,7 @@ func (f *familyUseCase) GetAll(c context.Context) ([]_familyRes.FamilyBase, erro
 		return nil, err
 	}
 
-	if families == nil {
+	if len(families) == 0 {
 		return nil, domain.ErrNotFound
 	}
 
