@@ -30,8 +30,15 @@ func (u *userMiddleware) IsAuth(c *gin.Context) {
 	}
 	userRole := uRole.(string)
 
+	nID := sess.Get("nakamaID")
+	if nID == nil {
+		helpers.FailResponse(c, http.StatusUnauthorized, "session", domain.ErrUnAuthorized)
+	}
+	nakamaID := nID.(primitive.ObjectID)
+
 	c.Set("userID", userID)
 	c.Set("userRole", userRole)
+	c.Set("nakamaID", nakamaID)
 	c.Next()
 }
 

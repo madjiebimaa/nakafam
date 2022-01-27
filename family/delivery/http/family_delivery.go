@@ -24,14 +24,13 @@ func (f *FamilyDelivery) Create(c *gin.Context) {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
 
-	// TODO: how to get this kinda things?
 	val, _ := c.Get("nakamaID")
 	if val == "" {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
-
 	nakamaID := val.(primitive.ObjectID)
 	req.NakamaID = nakamaID
+
 	ctx := c.Request.Context()
 	if err := f.familyUCase.Create(ctx, &req); err != nil {
 		helpers.FailResponse(c, helpers.GetStatusCode(err), "service", err)
@@ -46,19 +45,23 @@ func (f *FamilyDelivery) Update(c *gin.Context) {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
 
-	val := c.Param("familyID")
-	if val == "" {
+	nVal, _ := c.Get("nakamaID")
+	if nVal == "" {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
+	nakamaID := nVal.(primitive.ObjectID)
+	req.NakamaID = nakamaID
 
-	familyID, err := primitive.ObjectIDFromHex(val)
+	fVal := c.Param("familyID")
+	if fVal == "" {
+		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
+	}
+	familyID, err := primitive.ObjectIDFromHex(fVal)
 	if err != nil {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
-
-	// TODO: how to get Nakama ID
-
 	req.FamilyID = familyID
+
 	ctx := c.Request.Context()
 	if err := f.familyUCase.Update(ctx, &req); err != nil {
 		helpers.FailResponse(c, helpers.GetStatusCode(err), "service", err)
@@ -68,18 +71,23 @@ func (f *FamilyDelivery) Update(c *gin.Context) {
 }
 
 func (f *FamilyDelivery) Delete(c *gin.Context) {
+	nVal, _ := c.Get("nakamaID")
+	if nVal == "" {
+		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
+	}
+	nakamaID := nVal.(primitive.ObjectID)
+
 	id := c.Param("familyID")
 	if id == "" {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
-
 	familyID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
 
-	// TODO: how to get Nakama ID
 	req := _familyReq.FamilyDelete{
+		NakamaID: nakamaID,
 		FamilyID: familyID,
 	}
 

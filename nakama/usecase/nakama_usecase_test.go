@@ -27,8 +27,9 @@ func TestCreate(t *testing.T) {
 		userRepo.On("GetByID", mock.Anything, fakeReq.UserID).Return(fakeUser, nil).Once()
 		nakamaRepo.On("Create", mock.Anything, mock.AnythingOfType("*domain.Nakama")).Return(nil).Once()
 
-		err := nakamaUCase.Create(context.TODO(), &fakeReq)
+		nakama, err := nakamaUCase.Create(context.TODO(), &fakeReq)
 		assert.NoError(t, err)
+		assert.NotNil(t, nakama)
 		nakamaRepo.AssertExpectations(t)
 		userRepo.AssertExpectations(t)
 		familyRepo.AssertExpectations(t)
@@ -37,8 +38,9 @@ func TestCreate(t *testing.T) {
 	t.Run("fail find user in repository", func(t *testing.T) {
 		userRepo.On("GetByID", mock.Anything, fakeReq.UserID).Return(domain.User{}, domain.ErrInternalServerError).Once()
 
-		err := nakamaUCase.Create(context.TODO(), &fakeReq)
+		nakama, err := nakamaUCase.Create(context.TODO(), &fakeReq)
 		assert.Error(t, err)
+		assert.Equal(t, primitive.NilObjectID, nakama.ID)
 		nakamaRepo.AssertExpectations(t)
 		userRepo.AssertExpectations(t)
 		familyRepo.AssertExpectations(t)
@@ -47,8 +49,9 @@ func TestCreate(t *testing.T) {
 	t.Run("fail user not found", func(t *testing.T) {
 		userRepo.On("GetByID", mock.Anything, fakeReq.UserID).Return(domain.User{}, nil).Once()
 
-		err := nakamaUCase.Create(context.TODO(), &fakeReq)
+		nakama, err := nakamaUCase.Create(context.TODO(), &fakeReq)
 		assert.Error(t, err)
+		assert.Equal(t, primitive.NilObjectID, nakama.ID)
 		nakamaRepo.AssertExpectations(t)
 		userRepo.AssertExpectations(t)
 		familyRepo.AssertExpectations(t)
@@ -58,8 +61,9 @@ func TestCreate(t *testing.T) {
 		userRepo.On("GetByID", mock.Anything, fakeReq.UserID).Return(fakeUser, nil).Once()
 		nakamaRepo.On("Create", mock.Anything, mock.AnythingOfType("*domain.Nakama")).Return(domain.ErrInternalServerError).Once()
 
-		err := nakamaUCase.Create(context.TODO(), &fakeReq)
+		nakama, err := nakamaUCase.Create(context.TODO(), &fakeReq)
 		assert.Error(t, err)
+		assert.Equal(t, primitive.NilObjectID, nakama.ID)
 		nakamaRepo.AssertExpectations(t)
 		userRepo.AssertExpectations(t)
 		familyRepo.AssertExpectations(t)

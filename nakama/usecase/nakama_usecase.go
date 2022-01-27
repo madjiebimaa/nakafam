@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/madjiebimaa/nakafam/domain"
@@ -35,17 +34,17 @@ func NewNakamaUseCase(
 	}
 }
 
-func (n *nakamaUseCase) Create(c context.Context, req *_nakamaReq.NakamaCreate) error {
+func (n *nakamaUseCase) Create(c context.Context, req *_nakamaReq.NakamaCreate) (domain.Nakama, error) {
 	ctx, cancel := context.WithTimeout(c, n.contextTimeout)
 	defer cancel()
 
 	user, err := n.userRepo.GetByID(ctx, req.UserID)
 	if err != nil {
-		return err
+		return domain.Nakama{}, err
 	}
 
 	if user.ID == primitive.NilObjectID {
-		return domain.ErrNotFound
+		return domain.Nakama{}, domain.ErrNotFound
 	}
 
 	now := time.Now()
@@ -62,10 +61,10 @@ func (n *nakamaUseCase) Create(c context.Context, req *_nakamaReq.NakamaCreate) 
 	}
 
 	if err := n.nakamaRepo.Create(ctx, &nakama); err != nil {
-		return err
+		return domain.Nakama{}, err
 	}
 
-	return nil
+	return nakama, nil
 }
 
 func (n *nakamaUseCase) Update(c context.Context, req *_nakamaReq.NakamaUpdate) error {
@@ -187,8 +186,6 @@ func (n *nakamaUseCase) RegisterToFamily(c context.Context, req *_nakamaReq.Naka
 	if family.ID == primitive.NilObjectID {
 		return domain.ErrNotFound
 	}
-
-	fmt.Println("password: ", req.Password)
 
 	if err := bcrypt.CompareHashAndPassword([]byte(family.Password), []byte(req.Password)); err != nil {
 		return domain.ErrUnAuthorized
