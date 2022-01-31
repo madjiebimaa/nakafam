@@ -23,6 +23,10 @@ func NewConfigDB(
 }
 
 func (c *configDB) Init(ctx context.Context) *redis.Client {
+	if c.host == "" || c.port == "" {
+		log.Fatal("not configure the environment variables")
+	}
+
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     c.host + ":" + c.port,
 		Password: "",

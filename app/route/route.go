@@ -1,12 +1,10 @@
 package route
 
 import (
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_familyHttpDelivery "github.com/madjiebimaa/nakafam/family/delivery/http"
 	_nakamaHttpDelivery "github.com/madjiebimaa/nakafam/nakama/delivery/http"
 	_userHttpDelivery "github.com/madjiebimaa/nakafam/user/delivery/http"
-	_userMid "github.com/madjiebimaa/nakafam/user/delivery/http/middleware"
 )
 
 type Routes struct {
@@ -28,19 +26,19 @@ func NewRoutes(
 }
 
 func (ro *Routes) Init(r *gin.Engine) {
-	cor := cors.Config{
-		AllowAllOrigins:  true,
-		AllowMethods:     []string{"GET, POST, PATCH, DELETE"},
-		AllowCredentials: true,
-	}
+	// cor := cors.Config{
+	// 	AllowAllOrigins:  true,
+	// 	AllowMethods:     []string{"GET, POST, PATCH, DELETE"},
+	// 	AllowCredentials: true,
+	// }
 
-	logger := gin.Logger()
-	recovery := gin.Recovery()
+	// logger := gin.Logger()
+	// recovery := gin.Recovery()
 	api := r.Group("/api")
 
-	userMid := _userMid.NewUserMiddleware()
+	// userMid := _userMid.NewUserMiddleware()
 
-	api.Use(cors.New(cor), logger, recovery)
+	// api.Use(cors.New(cor), logger, recovery)
 	{
 		api.POST("/users/register", ro.userHttpDeliver.Register)
 		api.POST("/users/login", ro.userHttpDeliver.Login)
@@ -53,26 +51,26 @@ func (ro *Routes) Init(r *gin.Engine) {
 		api.GET("/families", ro.familyHttpDelivery.GetAll)
 	}
 
-	auth := api.Group("", userMid.IsAuth)
-	users := auth.Group("")
-	{
-		users.POST("/users/logout", ro.userHttpDeliver.Logout)
-		users.GET("/users/upgrade-role", ro.userHttpDeliver.UpgradeRole)
-		users.GET("/users/me", ro.userHttpDeliver.Me)
-	}
+	// auth := api.Group("", userMid.IsAuth)
+	// users := auth.Group("")
+	// {
+	// 	users.POST("/users/logout", ro.userHttpDeliver.Logout)
+	// 	users.GET("/users/upgrade-role", ro.userHttpDeliver.UpgradeRole)
+	// 	users.GET("/users/me", ro.userHttpDeliver.Me)
+	// }
 
-	nakamas := auth.Group("")
-	{
-		nakamas.POST("/nakamas", ro.nakamaHttpDelivery.Create)
-		nakamas.PATCH("/nakamas/:nakamaID", ro.nakamaHttpDelivery.Update)
-		nakamas.DELETE("/nakamas/:nakamaID", ro.nakamaHttpDelivery.Delete)
-		nakamas.PATCH("/nakamas/:nakamaID/families/:familyID", ro.nakamaHttpDelivery.RegisterToFamily)
-	}
+	// nakamas := auth.Group("")
+	// {
+	// 	nakamas.POST("/nakamas", ro.nakamaHttpDelivery.Create)
+	// 	nakamas.PATCH("/nakamas/:nakamaID", ro.nakamaHttpDelivery.Update)
+	// 	nakamas.DELETE("/nakamas/:nakamaID", ro.nakamaHttpDelivery.Delete)
+	// 	nakamas.PATCH("/nakamas/:nakamaID/families/:familyID", ro.nakamaHttpDelivery.RegisterToFamily)
+	// }
 
-	familiesLeader := auth.Group("", userMid.IsLeader)
-	{
-		familiesLeader.POST("/families", ro.familyHttpDelivery.Create)
-		familiesLeader.PATCH("/families/:familyID", ro.familyHttpDelivery.Update)
-		familiesLeader.DELETE("/families/:familyID", ro.familyHttpDelivery.Delete)
-	}
+	// familiesLeader := auth.Group("", userMid.IsLeader)
+	// {
+	// 	familiesLeader.POST("/families", ro.familyHttpDelivery.Create)
+	// 	familiesLeader.PATCH("/families/:familyID", ro.familyHttpDelivery.Update)
+	// 	familiesLeader.DELETE("/families/:familyID", ro.familyHttpDelivery.Delete)
+	// }
 }

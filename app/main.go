@@ -31,9 +31,10 @@ import (
 func main() {
 	config.LoadEnv()
 	r := gin.Default()
+	gin.SetMode(gin.ReleaseMode)
 
 	ctx := context.Background()
-	mongoConfig := mongo.NewConfigDB(os.Getenv("MONGO_HOST"), os.Getenv("MONGO_PORT"))
+	mongoConfig := mongo.NewConfigDB(os.Getenv("MONGO_HOST"), os.Getenv("MONGO_PORT"), os.Getenv("MONGO_USER"), os.Getenv("MONGO_PASSWORD"))
 	cl := mongoConfig.Init(ctx)
 	defer func() {
 
