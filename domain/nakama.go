@@ -11,15 +11,15 @@ import (
 )
 
 type SocialMedia struct {
-	Blogs     string `json:"blogs"`
-	Portfolio string `json:"portfolio"`
-	Email     string `json:"email"`
-	Github    string `json:"github"`
-	Linkedin  string `json:"linkedin"`
-	Twitter   string `json:"twitter"`
-	Discord   string `json:"discord"`
-	Youtube   string `json:"youtube"`
-	Instagram string `json:"instagram"`
+	Blogs     string `json:"blogs" bson:"blogs"`
+	Portfolio string `json:"portfolio" bson:"portfolio"`
+	Email     string `json:"email" bson:"email"`
+	Github    string `json:"github" bson:"github"`
+	Linkedin  string `json:"linkedin" bson:"linkedin"`
+	Twitter   string `json:"twitter" bson:"twitter"`
+	Discord   string `json:"discord" bson:"discord"`
+	Youtube   string `json:"youtube" bson:"youtube"`
+	Instagram string `json:"instagram" bson:"instagram"`
 }
 
 type Nakama struct {

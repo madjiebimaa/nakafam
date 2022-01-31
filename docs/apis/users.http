@@ -4,35 +4,12 @@
 @baseURL = http://{{host}}/api
 @sessionID =
 
+### Logout
+POST {{baseURL}}/users/logout HTTP/1.1
+
 ### Upgrade Role Request Token
 GET {{baseURL}}/users/upgrade-role HTTP/1.1
-
-### Upgrade Role to Leader
-PATCH {{baseURL}}/users/upgrade-role/:token HTTP/1.1
 
 ### Me
 GET {{baseURL}}/users/me HTTP/1.1
 
-### Logout
-POST {{baseURL}}/users/logout HTTP/1.1
-
-### Create Nakama
-POST {{baseURL}}/users/nakamas HTTP/1.1
-
-{
-    "name": "",
-    "username": "",
-    "profile_image": "",
-    "description": "",
-    "social_media": {
-        "blogs": "",
-        "portfolio": "",
-        "email": "",
-        "github": "",
-        "linkedin": "",
-        "twitter": "",
-        "discord": "",
-        "youtube": "",
-        "instagram": ""
-    }
-}

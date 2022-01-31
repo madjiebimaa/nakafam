@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/madjiebimaa/nakafam/domain"
 	"github.com/madjiebimaa/nakafam/helpers"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type userMiddleware struct{}
@@ -22,7 +21,7 @@ func (u *userMiddleware) IsAuth(c *gin.Context) {
 	if uID == nil {
 		helpers.FailResponse(c, http.StatusUnauthorized, "session", domain.ErrUnAuthorized)
 	}
-	userID := uID.(primitive.ObjectID)
+	userID := uID.(string)
 
 	uRole := sess.Get("userRole")
 	if uRole == nil {
@@ -34,7 +33,7 @@ func (u *userMiddleware) IsAuth(c *gin.Context) {
 	if nID == nil {
 		helpers.FailResponse(c, http.StatusUnauthorized, "session", domain.ErrUnAuthorized)
 	}
-	nakamaID := nID.(primitive.ObjectID)
+	nakamaID := nID.(string)
 
 	c.Set("userID", userID)
 	c.Set("userRole", userRole)

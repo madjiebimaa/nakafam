@@ -52,7 +52,7 @@ func (u *UserHandler) Login(c *gin.Context) {
 	// set userID to session means user have logged in
 	// similar in JWT that create access token
 	sess := sessions.Default(c)
-	sess.Set("userID", user.ID)
+	sess.Set("userID", user.ID.Hex())
 	sess.Set("userRole", user.Role)
 	if err := sess.Save(); err != nil {
 		helpers.FailResponse(c, http.StatusInternalServerError, "session", err)
@@ -62,12 +62,15 @@ func (u *UserHandler) Login(c *gin.Context) {
 }
 
 func (u *UserHandler) UpgradeRole(c *gin.Context) {
-	id, _ := c.Get("userID")
-	if id == nil {
+	uID, _ := c.Get("userID")
+	if uID == nil {
+		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
+	}
+	userID, err := primitive.ObjectIDFromHex(uID.(string))
+	if err != nil {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
 
-	userID := id.(primitive.ObjectID)
 	ctx := c.Request.Context()
 	res, err := u.userUCase.UpgradeRole(ctx, userID)
 	if err != nil {
@@ -98,12 +101,15 @@ func (u *UserHandler) ToLeaderRole(c *gin.Context) {
 }
 
 func (u *UserHandler) Me(c *gin.Context) {
-	id, _ := c.Get("userID")
-	if id == nil {
+	uID, _ := c.Get("userID")
+	if uID == nil {
+		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
+	}
+	userID, err := primitive.ObjectIDFromHex(uID.(string))
+	if err != nil {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
 
-	userID := id.(primitive.ObjectID)
 	ctx := c.Request.Context()
 	user, err := u.userUCase.Me(ctx, userID)
 	if err != nil {

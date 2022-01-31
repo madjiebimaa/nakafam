@@ -24,11 +24,14 @@ func (f *FamilyDelivery) Create(c *gin.Context) {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
 
-	val, _ := c.Get("nakamaID")
-	if val == "" {
+	nID, _ := c.Get("nakamaID")
+	if nID == "" {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
-	nakamaID := val.(primitive.ObjectID)
+	nakamaID, err := primitive.ObjectIDFromHex(nID.(string))
+	if err != nil {
+		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
+	}
 	req.NakamaID = nakamaID
 
 	ctx := c.Request.Context()
@@ -45,11 +48,14 @@ func (f *FamilyDelivery) Update(c *gin.Context) {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
 
-	nVal, _ := c.Get("nakamaID")
-	if nVal == "" {
+	nID, _ := c.Get("nakamaID")
+	if nID == "" {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
-	nakamaID := nVal.(primitive.ObjectID)
+	nakamaID, err := primitive.ObjectIDFromHex(nID.(string))
+	if err != nil {
+		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
+	}
 	req.NakamaID = nakamaID
 
 	fVal := c.Param("familyID")
@@ -71,11 +77,14 @@ func (f *FamilyDelivery) Update(c *gin.Context) {
 }
 
 func (f *FamilyDelivery) Delete(c *gin.Context) {
-	nVal, _ := c.Get("nakamaID")
-	if nVal == "" {
+	nID, _ := c.Get("nakamaID")
+	if nID == "" {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
-	nakamaID := nVal.(primitive.ObjectID)
+	nakamaID, err := primitive.ObjectIDFromHex(nID.(string))
+	if err != nil {
+		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
+	}
 
 	id := c.Param("familyID")
 	if id == "" {

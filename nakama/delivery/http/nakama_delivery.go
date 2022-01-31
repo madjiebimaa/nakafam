@@ -25,13 +25,16 @@ func (n *NakamaDelivery) Create(c *gin.Context) {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
 
-	val, _ := c.Get("userID")
-	if val == nil {
+	uID, _ := c.Get("userID")
+	if uID == nil {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
-
-	userID := val.(primitive.ObjectID)
+	userID, err := primitive.ObjectIDFromHex(uID.(string))
+	if err != nil {
+		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
+	}
 	req.UserID = userID
+
 	ctx := c.Request.Context()
 	nakama, err := n.nakamaUCase.Create(ctx, &req)
 	if err != nil {
@@ -39,7 +42,7 @@ func (n *NakamaDelivery) Create(c *gin.Context) {
 	}
 
 	sess := sessions.Default(c)
-	sess.Set("nakamaID", nakama.ID)
+	sess.Set("nakamaID", nakama.ID.Hex())
 	if err := sess.Save(); err != nil {
 		helpers.FailResponse(c, http.StatusInternalServerError, "session", err)
 	}
@@ -57,7 +60,10 @@ func (n *NakamaDelivery) Update(c *gin.Context) {
 	if uID == nil {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
-	userID := uID.(primitive.ObjectID)
+	userID, err := primitive.ObjectIDFromHex(uID.(string))
+	if err != nil {
+		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
+	}
 	req.UserID = userID
 
 	nID := c.Param("nakamaID")
@@ -83,7 +89,10 @@ func (n *NakamaDelivery) Delete(c *gin.Context) {
 	if uID == nil {
 		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
 	}
-	userID := uID.(primitive.ObjectID)
+	userID, err := primitive.ObjectIDFromHex(uID.(string))
+	if err != nil {
+		helpers.FailResponse(c, http.StatusBadRequest, "input value", domain.ErrBadParamInput)
+	}
 
 	nID := c.Param("nakamaID")
 	if nID == "" {

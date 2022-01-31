@@ -7,15 +7,33 @@
 POST {{baseURL}}/users/register HTTP/1.1
 
 {
-    "email": "",
-    "password": ""
+    "email": "testing@gmail.com",
+    "password": "testing"
 }
 
 ### User Login
 POST {{baseURL}}/users/login HTTP/1.1
 
 {
-    "email": "",
+    "email": "testing@gmail.com",
+    "password": "testing"
+}
+
+### User Upgrade Role 
+POST  {{baseURL}}/users/upgrade-role/:token HTTP/1.1
+
+{
     "password": ""
 }
 
+### Nakama Get By ID
+GET {{baseURL}}/nakamas/:nakamaID HTTP/1.1
+
+### Nakamas Get All
+GET {{baseURL}}/nakamas HTTP/1.1
+
+### Family Get By ID
+GET {{baseURL}}/families/:familyID HTTP/1.1
+
+### Family Get All
+GET {{baseURL}}/families HTTP/1.1

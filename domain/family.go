@@ -13,7 +13,7 @@ type Family struct {
 	ID          primitive.ObjectID `json:"id" bson:"_id"`
 	LeaderID    primitive.ObjectID `json:"leader_id" bson:"leader_id"`
 	Name        string             `json:"name" bson:"name"`
-	Password    string             `json:"password"`
+	Password    string             `json:"password" bson:"password"`
 	FamilyImage string             `json:"family_image" bson:"family_image"`
 	Nakamas     []Nakama           `json:"nakamas" bson:"nakamas"`
 	CreatedAt   time.Time          `json:"created_at" bson:"created_at"`

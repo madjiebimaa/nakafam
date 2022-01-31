@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/madjiebimaa/nakafam/domain"
@@ -33,23 +34,29 @@ func (m *mongoUserRepository) Register(ctx context.Context, user *domain.User) e
 func (m *mongoUserRepository) GetByID(ctx context.Context, id primitive.ObjectID) (domain.User, error) {
 	var user domain.User
 	filter := bson.D{{Key: "_id", Value: id}}
-	if err := m.coll.FindOne(ctx, filter).Decode(&user); err != nil {
-		log.Fatal(err)
+	err := m.coll.FindOne(ctx, filter).Decode(&user)
+	if err == nil {
+		return user, nil
+	} else if err == mongo.ErrNoDocuments {
+		return domain.User{}, nil
+	} else {
+		fmt.Println(err)
 		return domain.User{}, domain.ErrInternalServerError
 	}
-
-	return user, nil
 }
 
 func (m *mongoUserRepository) GetByEmail(ctx context.Context, email string) (domain.User, error) {
 	var user domain.User
 	filter := bson.D{{Key: "email", Value: email}}
-	if err := m.coll.FindOne(ctx, filter).Decode(&user); err != nil {
-		log.Fatal(err)
+	err := m.coll.FindOne(ctx, filter).Decode(&user)
+	if err == nil {
+		return user, nil
+	} else if err == mongo.ErrNoDocuments {
+		return domain.User{}, nil
+	} else {
+		fmt.Println(err)
 		return domain.User{}, domain.ErrInternalServerError
 	}
-
-	return user, nil
 }
 
 func (m *mongoUserRepository) ToLeaderRole(ctx context.Context, id primitive.ObjectID) error {

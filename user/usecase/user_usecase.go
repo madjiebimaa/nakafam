@@ -48,7 +48,7 @@ func (u *userUseCase) Register(c context.Context, req *_userReq.UserRegisterOrLo
 		return domain.ErrConflict
 	}
 
-	hashedPass, err := bcrypt.GenerateFromPassword([]byte(req.Password), 12)
+	hashedPass, _ := bcrypt.GenerateFromPassword([]byte(req.Password), 12)
 	if err != nil {
 		log.Fatal(err)
 		return domain.ErrInternalServerError

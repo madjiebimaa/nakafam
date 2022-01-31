@@ -11,8 +11,8 @@ import (
 
 type User struct {
 	ID        primitive.ObjectID `json:"id" bson:"_id"`
-	Email     string             `json:"email" bson:"email" faker:"email"`
-	Password  string             `json:"password" bson:"password" faker:"password"`
+	Email     string             `json:"email" bson:"email"`
+	Password  string             `json:"password" bson:"password"`
 	Role      string             `json:"role" bson:"role"` // default is staff but can request as a leader if using email confirmation
 	CreatedAt time.Time          `json:"created_at" bson:"created_at"`
 	UpdatedAt time.Time          `json:"updated_at" bson:"updated_at"`

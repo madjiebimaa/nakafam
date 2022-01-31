@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"github.com/madjiebimaa/nakafam/domain"
@@ -46,7 +45,6 @@ func (f *familyUseCase) Create(c context.Context, req *_familyReq.FamilyCreate) 
 
 	hashedPass, err := bcrypt.GenerateFromPassword([]byte(req.Password), 12)
 	if err != nil {
-		log.Fatal(err)
 		return domain.ErrInternalServerError
 	}
 
